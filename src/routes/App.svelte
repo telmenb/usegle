@@ -51,11 +51,13 @@
 			return;
 		}
 
-		if (currentCol === WORD_LENGTH - 1 && board[currentRow][currentCol].value !== '') {
+		let currentCell = board[currentRow][currentCol];
+		if (currentCol === WORD_LENGTH - 1 && currentCell.value !== '') {
 			return;
 		}
 
-		board[currentRow][currentCol].value = key;
+		currentCell.value = key;
+		currentCell.backgroundColor = StateColor.ACTIVE;
 		currentCol += currentCol === WORD_LENGTH - 1 ? 0 : 1;
 	}
 
@@ -89,9 +91,11 @@
 		if (board[currentRow][currentCol].value === '' && currentCol !== 0) {
 			currentCol -= 1;
 			board[currentRow][currentCol].value = '';
+			board[currentRow][currentCol].backgroundColor = StateColor.INACTIVE;
 			return;
 		}
 		board[currentRow][currentCol].value = '';
+		board[currentRow][currentCol].backgroundColor = StateColor.INACTIVE;
 	}
 
 	function updateCellAndKeyColors(guess: string, answer: string): void {
@@ -109,6 +113,12 @@
 			}
 			board[currentRow][i].textColor = TextColor.WHITE;
 		}
+	}
+
+	function shouldMarkPartial(idx: number, guess: string, answer: string): boolean {
+		// Only mark partial if there are more guess[idx] in answer
+		// If guess[idx] is guess's 4th 'e' but answer has only 3 'e's, don't mark partial
+		return false;
 	}
 
 	function setCellBackgroundColor(idx: number, color: StateColor): void {
