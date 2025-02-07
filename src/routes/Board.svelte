@@ -2,7 +2,7 @@
 	let { board } = $props();
 </script>
 
-<div class="my-32 flex flex-col items-center">
+<div class="mt-auto mb-16 flex flex-col items-center">
 	{#each board as row, i}
 		<div class="flex">
 			{#each row as cell, j}

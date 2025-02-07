@@ -4,9 +4,9 @@
 
 	const WORD_LENGTH = 5;
 	const ANSWER = "хамаг";
-	const CORRECT = "bg-green-300";
+	const CORRECT = "bg-green-500";
 	const INCORRECT = "bg-gray-500";
-	const PARTIAL = "bg-yellow-300";
+	const PARTIAL = "bg-yellow-500";
 	const INACTIVE = "bg-gray-300";
 
 	let board = $state(new Array(WORD_LENGTH + 1).fill('').map((_) => new Array(WORD_LENGTH).fill('')));
@@ -89,6 +89,7 @@
 		if (bgColor === PARTIAL) {
 			if (!element?.classList.contains(CORRECT)) {
 				element?.classList.add(PARTIAL);
+				element?.classList.add("text-white");
 			}
 			return;
 		}
@@ -96,6 +97,7 @@
 		element?.classList.remove(PARTIAL);
 		element?.classList.remove(INCORRECT);
 		element?.classList.add(bgColor);
+		element?.classList.add("text-white");
 	}
 </script>
 
@@ -105,5 +107,3 @@
 
 <Board {board} />
 <Keyboard {keyClicked} />
-
-<h1 class="mt-24 text-3xl font-bold">Welcome to Usegle! ⌨️ 🚀</h1>

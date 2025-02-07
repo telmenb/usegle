@@ -26,7 +26,7 @@
 </script>
 
 <!-- TODO: Use media queries to make keys smaller on smaller screens -->
-<div class="flex flex-col items-center">
+<div class="flex flex-col mb-auto items-center">
 	{#each keys as row, i}
 		<div class="flex {i === 0 ? 'ml-auto pr-8' : ''}">
 			{#if i === keys.length - 1}
