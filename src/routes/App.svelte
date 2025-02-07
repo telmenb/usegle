@@ -1,20 +1,44 @@
 <script lang="ts">
 	import Board from './Board.svelte';
 	import Keyboard from './Keyboard.svelte';
+	import { SvelteMap } from 'svelte/reactivity';
+	import { keys } from '$lib';
+	import { TextColor, StateColor } from '$lib/colors';
 
 	const WORD_LENGTH = 5;
-	const ANSWER = "хамаг";
-	const CORRECT = "bg-green-500";
-	const INCORRECT = "bg-gray-500";
-	const PARTIAL = "bg-yellow-500";
-	const INACTIVE = "bg-gray-300";
+	const ANSWER = 'хамаг';
 
-	let board = $state(new Array(WORD_LENGTH + 1).fill('').map((_) => new Array(WORD_LENGTH).fill('')));
+	let darkMode = $state(false);
+	let board = $state(initBoard());
+	let keysColorMap = $state(initKeysColorMap());
+
 	let currentRow = $state(0);
 	let currentCol = $state(0);
 
-	$inspect(currentRow);
-	$inspect(currentCol);
+	// $inspect(board);
+	// $inspect(keysColorMap);
+	// $inspect(currentRow);
+	// $inspect(currentCol);
+
+	function initBoard(): Array<Array<Cell>> {
+		return new Array<Array<Cell>>(WORD_LENGTH + 1).fill([]).map(() => {
+			return new Array<Cell>(WORD_LENGTH).fill({
+				value: '',
+				backgroundColor: StateColor.INACTIVE,
+				textColor: darkMode ? TextColor.WHITE : TextColor.BLACK
+			});
+		});
+	}
+
+	function initKeysColorMap(): SvelteMap<string, StateColor> {
+		let keysMap = new SvelteMap<string, StateColor>();
+		keys.forEach((row) => {
+			row.forEach((key) => {
+				keysMap.set(key, StateColor.INACTIVE);
+			});
+		});
+		return keysMap;
+	}
 
 	function keyClicked(key: string): void {
 		if (key === 'enter') {
@@ -27,77 +51,85 @@
 			return;
 		}
 
-		if (currentCol === WORD_LENGTH - 1 && board[currentRow][currentCol] !== '') {
+		if (currentCol === WORD_LENGTH - 1 && board[currentRow][currentCol].value !== '') {
 			return;
 		}
 
-		board[currentRow][currentCol] = key;
+		board[currentRow][currentCol].value = key;
 		currentCol += currentCol === WORD_LENGTH - 1 ? 0 : 1;
 	}
 
-	function handleEnterPress() {
-		if (currentCol !== WORD_LENGTH - 1 || board[currentRow][currentCol] === '') {
-				// Display error message
-				return;
-			}
+	function handleEnterPress(): void {
+		if (currentCol !== WORD_LENGTH - 1 || board[currentRow][currentCol].value === '') {
+			// Display error message
+			return;
+		}
 
-			// Check if word exists in word bank
-			//   If word not in word bank, display error message
+		// Check if word exists in word bank
+		//   If word not in word bank, display error message
 
-			// Post current row to server to check if word is match
+		// Post current row to server to check if word is match
 
-			updateCellAndKeyColors(board[currentRow].join("").toLowerCase(), ANSWER); // let's say API response is lowercase
-			if (board[currentRow].join("").toLowerCase() === ANSWER) {
-				// End game
-			}
-			currentCol = 0;
-			currentRow += 1;
-			if (currentRow === WORD_LENGTH + 1) {
-				// End game
-				return;
-			}
+		let guess = board[currentRow]
+			.map((row) => row.value)
+			.join('').toLowerCase();
+		updateCellAndKeyColors(guess, ANSWER); // let's say API response is lowercase
+		if (guess === ANSWER) {
+			// End game
+		}
+		currentCol = 0;
+		currentRow += 1;
+		if (currentRow === WORD_LENGTH + 1) {
+			// End game
+			return;
+		}
 	}
 
-	function handleBackspacePress() {
-		if (board[currentRow][currentCol] === '' && currentCol !== 0) {
-				currentCol -= 1;
-				board[currentRow][currentCol] = '';
-				return;
-			}
-			board[currentRow][currentCol] = '';
+	function handleBackspacePress(): void {
+		if (board[currentRow][currentCol].value === '' && currentCol !== 0) {
+			currentCol -= 1;
+			board[currentRow][currentCol].value = '';
+			return;
+		}
+		board[currentRow][currentCol].value = '';
 	}
 
 	function updateCellAndKeyColors(guess: string, answer: string): void {
 		for (let i = 0; i < guess.length; i++) {
-			let cell = document.getElementById(currentRow + '-' + i);
-			let key = document.getElementById(guess[i].toUpperCase());
+			let key = guess[i].toUpperCase();
 			if (guess[i] === answer[i]) {
-				tryUpdateHtmlElementBackgroundColor(cell, CORRECT);
-				tryUpdateHtmlElementBackgroundColor(key, CORRECT);
+				setCellBackgroundColor(i, StateColor.CORRECT);
+				setKeyBackgroundColor(key, StateColor.CORRECT);
 			} else if (answer.includes(guess[i])) {
-				tryUpdateHtmlElementBackgroundColor(cell, PARTIAL);
-				tryUpdateHtmlElementBackgroundColor(key, PARTIAL);
+				setCellBackgroundColor(i, StateColor.PARTIAL);
+				setKeyBackgroundColor(key, StateColor.PARTIAL);
 			} else {
-				tryUpdateHtmlElementBackgroundColor(cell, INCORRECT);
-				tryUpdateHtmlElementBackgroundColor(key, INCORRECT);
+				setCellBackgroundColor(i, StateColor.INCORRECT);
+				setKeyBackgroundColor(key, StateColor.INCORRECT);
 			}
+			board[currentRow][i].textColor = TextColor.WHITE;
 		}
 	}
 
-	function tryUpdateHtmlElementBackgroundColor(element: HTMLElement | null, bgColor: string) {
-		element?.classList.remove(INACTIVE);
-		if (bgColor === PARTIAL) {
-			if (!element?.classList.contains(CORRECT)) {
-				element?.classList.add(PARTIAL);
-				element?.classList.add("text-white");
+	function setCellBackgroundColor(idx: number, color: StateColor): void {
+		let currentCell = board[currentRow][idx];
+		if (color === StateColor.PARTIAL) {
+			if (currentCell.backgroundColor !== StateColor.CORRECT) {
+				currentCell.backgroundColor = StateColor.PARTIAL;
 			}
 			return;
 		}
-		element?.classList.remove(CORRECT);
-		element?.classList.remove(PARTIAL);
-		element?.classList.remove(INCORRECT);
-		element?.classList.add(bgColor);
-		element?.classList.add("text-white");
+		currentCell.backgroundColor = color;
+	}
+
+	function setKeyBackgroundColor(key: string, color: StateColor): void {
+		keysColorMap.set(key, color);
+	}
+
+	interface Cell {
+		value: string;
+		backgroundColor: StateColor;
+		textColor: TextColor;
 	}
 </script>
 
@@ -106,4 +138,4 @@
 </nav>
 
 <Board {board} />
-<Keyboard {keyClicked} />
+<Keyboard {keyClicked} {keysColorMap} />
