@@ -27,21 +27,23 @@
 		<div class="flex {i === 0 ? 'ml-auto pr-8' : ''}">
 			{#if i === keys.length - 1}
 				<button
-					class="m-0.5 h-14 w-8 select-none border bg-gray-300 text-center text-xl"
+					class="m-0.5 h-14 w-8 select-none border bg-gray-300 text-center text-xl font-semibold"
 					onclick={() => keyClicked('backspace')}>⌫</button
 				>
 			{/if}
 			{#each row as key}
 				<button
 					id={key}
-					class="m-0.5 h-14 w-8 select-none border text-center text-xl transition-colors duration-1000
-						{keysColorMap.get(key)} {keysColorMap.get(key) === StateColor.INACTIVE ? TextColor.BLACK : TextColor.WHITE}"
+					class="m-0.5 h-14 w-8 select-none border text-center text-xl font-semibold transition-colors duration-1000
+						{keysColorMap.get(key)} {keysColorMap.get(key) === StateColor.INACTIVE
+						? TextColor.BLACK
+						: TextColor.WHITE}"
 					onclick={() => keyClicked(key)}>{key}</button
 				>
 			{/each}
 			{#if i === keys.length - 1}
 				<button
-					class="m-0.5 h-14 w-16 select-none border bg-gray-300 text-center text-sm"
+					class="m-0.5 h-14 w-16 select-none border bg-gray-300 text-center text-sm font-semibold"
 					onclick={() => keyClicked('enter')}>ENTER</button
 				>
 			{/if}
