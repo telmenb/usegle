@@ -4,9 +4,9 @@
 	import { SvelteMap } from 'svelte/reactivity';
 	import { keys } from '$lib';
 	import { TextColor, StateColor } from '$lib/colors';
+	import axios from 'axios';
 
 	const WORD_LENGTH = 5;
-	const ANSWER = 'хамаг';
 
 	let darkMode = $state(false);
 	let board = $state(initBoard());
@@ -61,7 +61,7 @@
 		currentCol += currentCol === WORD_LENGTH - 1 ? 0 : 1;
 	}
 
-	function handleEnterPress(): void {
+	async function handleEnterPress(): Promise<void> {
 		if (currentCol !== WORD_LENGTH - 1 || board[currentRow][currentCol].value === '') {
 			// Display error message
 			return;
@@ -71,12 +71,14 @@
 		//   If word not in word bank, display error message
 
 		// Post current row to server to check if word is match
-
 		let guess = board[currentRow]
 			.map((row) => row.value)
-			.join('').toLowerCase();
-		updateCellAndKeyColors(guess, ANSWER); // let's say API response is lowercase
-		if (guess === ANSWER) {
+			.join('')
+			.toLowerCase();
+		let result = await checkGuess(guess);
+		updateCellAndKeyColors(guess, result);
+
+		if (board[currentRow].every((cell) => cell.backgroundColor === StateColor.CORRECT)) {
 			// End game
 		}
 		currentCol = 0;
@@ -98,13 +100,28 @@
 		board[currentRow][currentCol].backgroundColor = StateColor.INACTIVE;
 	}
 
-	function updateCellAndKeyColors(guess: string, answer: string): void {
+	async function checkGuess(guess: string): Promise<Array<number>> {
+		let result: Array<number> = [];
+		await axios
+			.post('http://localhost:3000/api/guessWord', { guess })
+			.then((response) => {
+				console.log(response.data);
+				result = response.data.result;
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+		return result;
+	}
+
+	function updateCellAndKeyColors(guess: string, result: Array<number>): void {
+		console.log(result);
 		for (let i = 0; i < guess.length; i++) {
 			let key = guess[i].toUpperCase();
-			if (guess[i] === answer[i]) {
+			if (result[i] === 1) {
 				setCellBackgroundColor(i, StateColor.CORRECT);
 				setKeyBackgroundColor(key, StateColor.CORRECT);
-			} else if (answer.includes(guess[i])) {
+			} else if (result[i] === 0) {
 				setCellBackgroundColor(i, StateColor.PARTIAL);
 				setKeyBackgroundColor(key, StateColor.PARTIAL);
 			} else {
@@ -113,12 +130,6 @@
 			}
 			board[currentRow][i].textColor = TextColor.WHITE;
 		}
-	}
-
-	function shouldMarkPartial(idx: number, guess: string, answer: string): boolean {
-		// Only mark partial if there are more guess[idx] in answer
-		// If guess[idx] is guess's 4th 'e' but answer has only 3 'e's, don't mark partial
-		return false;
 	}
 
 	function setCellBackgroundColor(idx: number, color: StateColor): void {
