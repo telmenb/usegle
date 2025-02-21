@@ -4,11 +4,13 @@
 	import { SvelteMap } from 'svelte/reactivity';
 	import { keys } from '$lib';
 	import { TextColor, StateColor } from '$lib/colors';
+	import type { PageProps } from './$types';
 	import axios from 'axios';
 
-	const WORD_LENGTH = 5;
+	let { data }: PageProps = $props();
 
 	let darkMode = $state(false);
+	const wordLength = $derived(data.wordLength);
 	let board = $state(initBoard());
 	let keysColorMap = $state(initKeysColorMap());
 
@@ -21,8 +23,9 @@
 	// $inspect(currentCol);
 
 	function initBoard(): Array<Array<Cell>> {
-		return new Array<Array<Cell>>(WORD_LENGTH + 1).fill([]).map(() => {
-			return new Array<Cell>(WORD_LENGTH).fill({
+		console.log('wordlength:', wordLength);
+		return new Array<Array<Cell>>(wordLength + 1).fill([]).map(() => {
+			return new Array<Cell>(wordLength).fill({
 				value: '',
 				backgroundColor: StateColor.INACTIVE,
 				textColor: darkMode ? TextColor.WHITE : TextColor.BLACK
@@ -52,17 +55,17 @@
 		}
 
 		let currentCell = board[currentRow][currentCol];
-		if (currentCol === WORD_LENGTH - 1 && currentCell.value !== '') {
+		if (currentCol === wordLength - 1 && currentCell.value !== '') {
 			return;
 		}
 
 		currentCell.value = key;
 		currentCell.backgroundColor = StateColor.ACTIVE;
-		currentCol += currentCol === WORD_LENGTH - 1 ? 0 : 1;
+		currentCol += currentCol === wordLength - 1 ? 0 : 1;
 	}
 
 	async function handleEnterPress(): Promise<void> {
-		if (currentCol !== WORD_LENGTH - 1 || board[currentRow][currentCol].value === '') {
+		if (currentCol !== wordLength - 1 || board[currentRow][currentCol].value === '') {
 			// Display error message
 			return;
 		}
@@ -83,7 +86,7 @@
 		}
 		currentCol = 0;
 		currentRow += 1;
-		if (currentRow === WORD_LENGTH + 1) {
+		if (currentRow === wordLength + 1) {
 			// End game
 			return;
 		}
