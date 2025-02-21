@@ -1,8 +1,7 @@
 import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors, { CorsOptions } from 'cors';
-import gameInitializer from "./routes/gameInitializer";
-import guessChecker from "./routes/guessChecker";
+import gameController from "./routes/game";
 
 dotenv.config();
 
@@ -25,8 +24,7 @@ app.use((req: Request, res: Response, next) => {
 })
 
 // Routes
-app.use("/api/init", gameInitializer);
-app.use("/api/guessWord", guessChecker);
+app.use("/api/game", gameController);
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);

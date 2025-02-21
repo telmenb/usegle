@@ -106,7 +106,7 @@
 	async function checkGuess(guess: string): Promise<Array<number>> {
 		let result: Array<number> = [];
 		await axios
-			.post('http://localhost:3000/api/guessWord', { guess })
+			.post('http://localhost:3000/api/game/checkGuess', { guess })
 			.then((response) => {
 				console.log(response.data);
 				result = response.data.result;

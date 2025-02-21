@@ -1,9 +1,14 @@
 import express, { Router, Request, Response } from 'express';
 
 const router: Router = express.Router();
+const WORD_LENGTH = 5;
 const ANSWER: string = 'хамаг';
 
-router.post("/", (req: Request, res: Response) => {
+router.get("/init", (req: Request, res: Response) => {
+  res.json({ wordLength: WORD_LENGTH });
+});
+
+router.post("/checkGuess", (req: Request, res: Response) => {
   const { guess } = req.body as GuessWordRequest;
   if (!guess) {
     res.status(400).json({ message: "Bad guess property" });
