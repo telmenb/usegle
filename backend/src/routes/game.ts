@@ -1,3 +1,4 @@
+// /* eslint-disable @typescript-eslint/no-explicit-any */
 import express, { Router, Request, Response } from 'express';
 
 const router: Router = express.Router();
@@ -15,24 +16,23 @@ router.post("/checkGuess", (req: Request, res: Response) => {
     return;
   }
 
-  let result: Array<number> = [];
-  for (let i = 0; i < guess.length; i++) {
-    const char = guess[i].toLowerCase();
-    if (char === ANSWER[i]) {
-      result.push(1);
-    } else if (ANSWER.includes(char)) {
-      result.push(0);
-    } else {
-      result.push(-1);
-    }
-  };
+  const result = getGuessResult(guess.toLowerCase(), ANSWER);
   res.json({ result });
 })
 
-function shouldMarkPartial(idx: number, guess: string, answer: string): boolean {
-  // TODO: Only mark partial if there are more guess[idx] in answer
-  // If guess[idx] is guess's 4th 'e' but answer has only 3 'e's, don't mark partial
-  return false;
+function getGuessResult(guess: string, answer: string): Array<number> {
+  const letterCount: any = {};
+  const result: Array<number> = new Array(WORD_LENGTH).fill(-1);
+  for (let i = 0; i < guess.length; i++) {
+    if (guess[i] === answer[i]) result[i] = 1;
+    else letterCount[answer[i]] = (letterCount[answer[i]] || 0) + 1;
+  }
+  for (let i = 0; i < guess.length; i++) {
+    if (guess[i] === answer[i] || !letterCount[guess[i]]) continue;
+    letterCount[guess[i]]--;
+    result[i] = 0;
+  }
+  return result;
 }
 
 interface GuessWordRequest {
