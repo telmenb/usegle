@@ -1,11 +1,14 @@
 <script lang="ts">
-	import Board from './Board.svelte';
-	import Keyboard from './Keyboard.svelte';
 	import { SvelteMap } from 'svelte/reactivity';
-	import { keys } from '$lib';
-	import { TextColor, StateColor } from '$lib/colors';
+  import { modals } from 'svelte-modals'
 	import type { PageProps } from './$types';
 	import axios from 'axios';
+	import Board from '$lib/components/Board.svelte';
+	import Keyboard from '$lib/components/Keyboard.svelte';
+	import HowToPlayModal from '$lib/components/HowToPlayModal.svelte';
+	import AboutModal from '$lib/components/AboutModal.svelte';
+	import { keys } from '$lib';
+	import { TextColor, StateColor } from '$lib/colors';
 
 	let { data }: PageProps = $props();
 
@@ -157,8 +160,13 @@
 	}
 </script>
 
-<nav class="w-full border-b p-4 text-black dark:text-white">
-	<a href="/about" class="hover:underline">About</a>
+<nav class="w-full border-b px-6 py-4 text-black dark:text-white space-x-2">
+	<button onclick={() => modals.open(AboutModal)} class="hover:underline">
+		<img src="info.svg" alt="About" class="w-8 h-8" />
+	</button>
+	<button onclick={() => modals.open(HowToPlayModal)} class="hover:underline">
+		<img src="question-mark.svg" alt="How to play" class="w-8 h-8" />
+	</button>
 </nav>
 
 <Board {board} />
