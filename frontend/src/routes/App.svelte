@@ -73,15 +73,14 @@
 			return;
 		}
 
-		// Check if word exists in word bank
-		//   If word not in word bank, display error message
-
-		// Post current row to server to check if word is match
+		// Post current row to server to check if word in wordbank and is match
 		let guess = board[currentRow]
 			.map((row) => row.value)
 			.join('')
 			.toLowerCase();
 		let result = await checkGuess(guess);
+
+		// Maybe return 404 if not found in wordbank
 		updateCellAndKeyColors(guess, result);
 
 		if (board[currentRow].every((cell) => cell.backgroundColor === StateColor.CORRECT)) {
@@ -140,16 +139,14 @@
 
 	function setCellBackgroundColor(idx: number, color: StateColor): void {
 		let currentCell = board[currentRow][idx];
-		if (color === StateColor.PARTIAL) {
-			if (currentCell.backgroundColor !== StateColor.CORRECT) {
-				currentCell.backgroundColor = StateColor.PARTIAL;
-			}
-			return;
-		}
 		currentCell.backgroundColor = color;
 	}
 
 	function setKeyBackgroundColor(key: string, color: StateColor): void {
+		if (keysColorMap.get(key) === StateColor.CORRECT ||
+			 (keysColorMap.get(key) === StateColor.PARTIAL && color === StateColor.INCORRECT)) {
+			return;
+		}
 		keysColorMap.set(key, color);
 	}
 
