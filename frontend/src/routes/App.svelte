@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { SvelteMap } from 'svelte/reactivity';
   import { modals } from 'svelte-modals'
+  import { toast } from '@zerodevx/svelte-toast'
 	import type { PageProps } from './$types';
 	import axios from 'axios';
 	import Board from '$lib/components/Board.svelte';
@@ -69,7 +70,7 @@
 
 	async function handleEnterPress(): Promise<void> {
 		if (currentCol !== wordLength - 1 || board[currentRow][currentCol].value === '') {
-			// Display error message
+			toast.push('Дутуу бөглөсөн байна');
 			return;
 		}
 
@@ -80,16 +81,21 @@
 			.toLowerCase();
 		let result = await checkGuess(guess);
 
-		// Maybe return 404 if not found in wordbank
+		// Show error if word not in wordbank
+		if (result.length === 0) {
+			toast.push('Бөглөсөн үг үгийн санд байхгүй байна');
+			return;
+		}
+
 		updateCellAndKeyColors(guess, result);
 
 		if (board[currentRow].every((cell) => cell.backgroundColor === StateColor.CORRECT)) {
-			// End game
+			// End game - win
 		}
 		currentCol = 0;
 		currentRow += 1;
 		if (currentRow === wordLength + 1) {
-			// End game
+			// End game - lose
 			return;
 		}
 	}
@@ -115,6 +121,7 @@
 			})
 			.catch((error) => {
 				console.error(error);
+				result = [];
 			});
 		return result;
 	}
