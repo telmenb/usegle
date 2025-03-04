@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { SvelteMap } from 'svelte/reactivity';
+	import { fly } from 'svelte/transition';
   import { modals } from 'svelte-modals'
   import { toast } from '@zerodevx/svelte-toast'
 	import type { PageProps } from './$types';
@@ -8,46 +8,37 @@
 	import Keyboard from '$lib/components/Keyboard.svelte';
 	import HowToPlayModal from '$lib/components/HowToPlayModal.svelte';
 	import AboutModal from '$lib/components/AboutModal.svelte';
-	import { keys } from '$lib';
+	import { initBoard, initKeysColorMap, type Cell } from '$lib';
 	import { TextColor, StateColor } from '$lib/colors';
+	import type { SvelteMap } from 'svelte/reactivity';
+	import EndGame from '$lib/components/EndGame.svelte';
 
 	let { data }: PageProps = $props();
 
-	let darkMode = $state(false);
-	const wordLength = $derived(data.wordLength);
-	let board = $state(initBoard());
-	let keysColorMap = $state(initKeysColorMap());
+	let darkMode: boolean = $state(false);
+	let gameOver: boolean = $state(false);
+	let won: boolean = $state(false);
+	const wordLength: number = $derived(data.wordLength);
+	let keysColorMap: SvelteMap<string, StateColor> = $state(initKeysColorMap());
+	
+	let board: Array<Array<Cell>> = $state([]);
+	$effect(() => {
+		board = initBoard(wordLength, darkMode);
+	});
 
 	let currentRow = $state(0);
 	let currentCol = $state(0);
 
-	// $inspect(board);
-	// $inspect(keysColorMap);
+	$inspect(board);
+	$inspect(keysColorMap);
 	// $inspect(currentRow);
 	// $inspect(currentCol);
 
-	function initBoard(): Array<Array<Cell>> {
-		console.log('wordlength:', wordLength);
-		return new Array<Array<Cell>>(wordLength + 1).fill([]).map(() => {
-			return new Array<Cell>(wordLength).fill({
-				value: '',
-				backgroundColor: StateColor.INACTIVE,
-				textColor: darkMode ? TextColor.WHITE : TextColor.BLACK
-			});
-		});
-	}
-
-	function initKeysColorMap(): SvelteMap<string, StateColor> {
-		let keysMap = new SvelteMap<string, StateColor>();
-		keys.forEach((row) => {
-			row.forEach((key) => {
-				keysMap.set(key, StateColor.INACTIVE);
-			});
-		});
-		return keysMap;
-	}
-
 	function keyClicked(key: string): void {
+		if (gameOver) {
+			return;
+		}
+
 		if (key === 'enter') {
 			handleEnterPress();
 			return;
@@ -91,11 +82,14 @@
 
 		if (board[currentRow].every((cell) => cell.backgroundColor === StateColor.CORRECT)) {
 			// End game - win
+			gameOver = true;
+			won = true;
 		}
 		currentCol = 0;
 		currentRow += 1;
 		if (currentRow === wordLength + 1) {
 			// End game - lose
+			gameOver = true;
 			return;
 		}
 	}
@@ -156,12 +150,6 @@
 		}
 		keysColorMap.set(key, color);
 	}
-
-	interface Cell {
-		value: string;
-		backgroundColor: StateColor;
-		textColor: TextColor;
-	}
 </script>
 
 <nav class="w-full border-b px-6 py-4 text-black dark:text-white space-x-2">
@@ -173,5 +161,11 @@
 	</button>
 </nav>
 
-<Board {board} />
-<Keyboard {keyClicked} {keysColorMap} />
+{#if gameOver}
+	<div transition:fly={{ y: 200, duration: 1000 }}>
+		<EndGame {board} {won} />
+	</div>
+{:else}
+	<Board {board} />
+	<Keyboard {keyClicked} {keysColorMap} />
+{/if}
