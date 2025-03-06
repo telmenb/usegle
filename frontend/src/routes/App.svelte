@@ -29,8 +29,8 @@
 	let currentRow = $state(0);
 	let currentCol = $state(0);
 
-	$inspect(board);
-	$inspect(keysColorMap);
+	// $inspect(board);
+	// $inspect(keysColorMap);
 	// $inspect(currentRow);
 	// $inspect(currentCol);
 
@@ -153,9 +153,9 @@
 </script>
 
 <nav class="w-full border-b px-6 py-4 text-black dark:text-white space-x-2">
-	<button onclick={() => modals.open(AboutModal)} class="hover:underline">
+	<!-- <button onclick={() => modals.open(AboutModal)} class="hover:underline">
 		<img src="info.svg" alt="About" class="w-8 h-8" />
-	</button>
+	</button> -->
 	<button onclick={() => modals.open(HowToPlayModal)} class="hover:underline">
 		<img src="question-mark.svg" alt="How to play" class="w-8 h-8" />
 	</button>
