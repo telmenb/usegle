@@ -1,5 +1,6 @@
 import { SvelteMap } from "svelte/reactivity";
 import { StateColor, TextColor } from "./colors";
+import { clearStorage, getItemFromStorage } from "./storageHelper";
 
 // Junk drawer for now
 export const keys: Array<Array<string>> = [
@@ -9,14 +10,27 @@ export const keys: Array<Array<string>> = [
   ['Я', 'Ч', 'Ё', 'С', 'М', 'И', 'Т', 'Ь', 'В', 'Ю']
 ];
 
-export function initBoard(wordLength: number, darkModeEnabled: boolean): Array<Array<Cell>> {
+export function initBoard(wordLength: number): Array<Array<Cell>> {
+  const currentDate = new Date().toISOString().slice(0,10);
+  const savedBoardState = getItemFromStorage(currentDate);
+  if (savedBoardState) {
+    console.log('we got a board bih');
+    return JSON.parse(savedBoardState);
+  }
+
+  clearStorage();
   return new Array<Array<Cell>>(wordLength + 1).fill([]).map(() => {
     return new Array<Cell>(wordLength).fill({
       value: '',
       backgroundColor: StateColor.INACTIVE,
-      textColor: darkModeEnabled ? TextColor.WHITE : TextColor.BLACK
+      textColor: TextColor.BLACK
     });
   });
+}
+
+export function initCurrentRow(): number
+{
+  return Number(getItemFromStorage('currentRow'));
 }
 
 export function initKeysColorMap(): SvelteMap<string, StateColor> {
