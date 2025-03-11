@@ -15,23 +15,27 @@ const redisClient = getRedisClient();
 
 // Default values - should be overwritten on init
 let wordLength: number = 5;
-let answer: string = 'хамаг';
+let cachedDate: string = '';
+let cachedAnswer: string = 'хамаг';
 
 router.get("/init", async (req: Request, res: Response) => {
-  if (redisClient.isReady) {
-    const utcTimeStamp = new Date().toISOString();
-    const word = await redisClient.get(utcTimeStamp.slice(0,10));
-
-    if (!word) {
-      console.log(`Failed to retrieve word from Redis ${utcTimeStamp}`);
-    }
-
-    answer = word ?? answer;
-    wordLength = answer.length;
-    res.json({ wordLength });
-  } else {
+  if (!redisClient.isReady) {
     res.status(500).json({ message: 'Server error' });
+    return;
   }
+
+  const currentDate = new Date().toISOString().slice(0,10);
+  if (currentDate !== cachedDate) {
+    const word = await redisClient.get(currentDate);
+    if (!word) {
+      console.log(`Failed to retrieve word from Redis ${currentDate}`);
+    }
+    cachedDate = currentDate;
+    cachedAnswer = word ?? cachedAnswer;
+  }
+
+  wordLength = cachedAnswer.length;
+  res.json({ wordLength });
 });
 
 router.get("/wordBank", (req: Request, res: Response) => {
@@ -51,7 +55,7 @@ router.post("/checkGuess", (req: Request, res: Response) => {
     return;
   }
 
-  const result = getGuessResult(guess.toLowerCase(), answer);
+  const result = getGuessResult(guess.toLowerCase(), cachedAnswer);
   res.json({ result });
 })
 
