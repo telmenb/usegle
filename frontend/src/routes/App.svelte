@@ -13,6 +13,7 @@
 	import type { SvelteMap } from 'svelte/reactivity';
 	import EndGame from '$lib/components/EndGame.svelte';
 	import { setItemInStorage } from '$lib/storageHelper';
+	import { PUBLIC_USEGLE_API_HOST } from '$env/static/public'
 
 	let { data }: PageProps = $props();
 
@@ -112,7 +113,7 @@
 	async function checkGuess(guess: string): Promise<Array<number>> {
 		let result: Array<number> = [];
 		await axios
-			.post('http://localhost:3000/api/game/checkGuess', { guess })
+			.post(`${PUBLIC_USEGLE_API_HOST}/api/game/checkGuess`, { guess })
 			.then((response) => {
 				console.log(response.data);
 				result = response.data.result;

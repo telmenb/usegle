@@ -1,5 +1,10 @@
-import type { PageLoad } from './$types';
+import { PUBLIC_USEGLE_API_HOST } from '$env/static/public'
 
-export const load: PageLoad = async () => {
-	return await fetch('http://localhost:3000/api/game/init').then((res) => res.json())
+export const load = async () => {
+	const response = await fetch(`${PUBLIC_USEGLE_API_HOST}/api/game/init`)
+	return (await response.json()) as ApiInitResponse;
 };
+
+interface ApiInitResponse {
+	wordLength: number;
+}
