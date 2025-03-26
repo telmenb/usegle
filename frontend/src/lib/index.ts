@@ -28,9 +28,12 @@ export function initBoard(wordLength: number): Array<Array<Cell>> {
   });
 }
 
-export function initCurrentRow(): number
-{
+export function initCurrentRow(): number {
   return Number(getItemFromStorage('currentRow'));
+}
+
+export function initWon(): boolean {
+  return Boolean(getItemFromStorage('won'));
 }
 
 export function initKeysColorMap(): SvelteMap<string, StateColor> {

@@ -30,7 +30,7 @@ router.get("/init", async (req: Request, res: Response) => {
     if (!word) {
       console.log(`Failed to retrieve word from Redis ${currentDate}`);
     }
-    cachedDate = currentDate;
+    cachedDate = word ? currentDate : cachedDate;
     cachedAnswer = word ?? cachedAnswer;
   }
 

@@ -4,10 +4,10 @@
 	let { board } = $props();
 </script>
 
-<div class="mb-16 mt-auto flex flex-col items-center">
+<div class="flex flex-col items-center">
 	{#each board as row, i}
 		<div class="flex">
-			{#each row as cell, j}
+			{#each row as _, j}
 				<input
 					id={i + '-' + j}
 					class="m-0.5 h-14 w-14 border border-gray-300 text-center text-3xl transition-colors duration-500 font-semibold

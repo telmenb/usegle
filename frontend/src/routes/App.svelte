@@ -8,7 +8,7 @@
 	import Keyboard from '$lib/components/Keyboard.svelte';
 	import HowToPlayModal from '$lib/components/HowToPlayModal.svelte';
 	import AboutModal from '$lib/components/AboutModal.svelte';
-	import { initBoard, initCurrentRow, initKeysColorMap, type Cell } from '$lib';
+	import { initBoard, initCurrentRow, initKeysColorMap, initWon, type Cell } from '$lib';
 	import { TextColor, StateColor } from '$lib/colors';
 	import type { SvelteMap } from 'svelte/reactivity';
 	import EndGame from '$lib/components/EndGame.svelte';
@@ -18,18 +18,19 @@
 	let { data }: PageProps = $props();
 
 	let darkMode: boolean = $state(false);
-	let gameOver: boolean = $state(false);
-	let won: boolean = $state(false);
 	const wordLength: number = $derived(data.wordLength);
 	let keysColorMap: SvelteMap<string, StateColor> = $state(initKeysColorMap());
-
+	
 	let board: Array<Array<Cell>> = $state([]);
-	let currentRow = $state(0);
-	let currentCol = $state(0);
-	$effect(() => {
-		board = initBoard(wordLength);
-		currentRow = initCurrentRow();
-	});
+		let currentRow = $state(0);
+		let currentCol = $state(0);
+		let won: boolean = $state(false);
+		$effect(() => {
+			board = initBoard(wordLength);
+			currentRow = initCurrentRow();
+			won = initWon();
+		});
+		let gameOver: boolean = $derived(currentRow >= data.wordLength);
 
 	// $inspect(board);
 	// $inspect(keysColorMap);
@@ -83,17 +84,11 @@
 		updateCellAndKeyColors(guess, result);
 
 		if (board[currentRow].every((cell) => cell.backgroundColor === StateColor.CORRECT)) {
-			// End game - win
-			gameOver = true;
 			won = true;
+			setItemInStorage('won', true);
 		}
 		currentCol = 0;
-		currentRow += 1;
-		if (currentRow === wordLength + 1) {
-			// End game - lose
-			gameOver = true;
-			return;
-		}
+		currentRow += won ? wordLength + 1 : 1;
 
 		setItemInStorage(new Date().toISOString().slice(0, 10), board);
 		setItemInStorage('currentRow', currentRow);
@@ -169,10 +164,16 @@
 </nav>
 
 {#if gameOver}
-	<div transition:fly={{ y: 200, duration: 1000 }}>
+	<div
+		class="flex flex-col items-center justify-center"
+		style="height: 80vh"
+		transition:fly={{ y: 200, duration: 1000 }}
+	>
 		<EndGame {board} {won} />
 	</div>
 {:else}
-	<Board {board} />
-	<Keyboard {keyClicked} {keysColorMap} />
+	<div class="flex flex-col items-center justify-evenly h-full">
+		<Board {board} />
+		<Keyboard {keyClicked} {keysColorMap} />
+	</div>
 {/if}
