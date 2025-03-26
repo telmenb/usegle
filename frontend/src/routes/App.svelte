@@ -22,20 +22,15 @@
 	let keysColorMap: SvelteMap<string, StateColor> = $state(initKeysColorMap());
 	
 	let board: Array<Array<Cell>> = $state([]);
-		let currentRow = $state(0);
-		let currentCol = $state(0);
-		let won: boolean = $state(false);
-		$effect(() => {
-			board = initBoard(wordLength);
-			currentRow = initCurrentRow();
-			won = initWon();
-		});
-		let gameOver: boolean = $derived(currentRow >= data.wordLength);
-
-	// $inspect(board);
-	// $inspect(keysColorMap);
-	// $inspect(currentRow);
-	// $inspect(currentCol);
+	let currentRow: number = $state(0);
+	let currentCol: number = $state(0);
+	let won: boolean = $state(false);
+	$effect(() => {
+		board = initBoard(wordLength);
+		currentRow = initCurrentRow();
+		won = initWon();
+	});
+	let gameOver: boolean = $derived(currentRow > data.wordLength);
 
 	function keyClicked(key: string): void {
 		if (gameOver) {
@@ -88,7 +83,7 @@
 			setItemInStorage('won', true);
 		}
 		currentCol = 0;
-		currentRow += won ? wordLength + 1 : 1;
+		currentRow = won ? wordLength + 1 : currentRow + 1;
 
 		setItemInStorage(new Date().toISOString().slice(0, 10), board);
 		setItemInStorage('currentRow', currentRow);
