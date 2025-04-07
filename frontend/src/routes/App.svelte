@@ -12,14 +12,14 @@
 	import type { SvelteMap } from 'svelte/reactivity';
 	import EndGame from '$lib/components/EndGame.svelte';
 	import { setItemInStorage } from '$lib/storageHelper';
-	import { PUBLIC_USEGLE_API_HOST } from '$env/static/public'
+	import { PUBLIC_USEGLE_API_HOST } from '$env/static/public';
+	import { onMount, onDestroy } from 'svelte';
 
 	let { data }: PageProps = $props();
 
 	let darkMode: boolean = $state(false);
 	const wordLength: number = $derived(data.wordLength);
 	let keysColorMap: SvelteMap<string, StateColor> = $state(initKeysColorMap());
-	
 	let board: Array<Array<Cell>> = $state([]);
 	let currentRow: number = $state(0);
 	let currentCol: number = $state(0);
@@ -30,6 +30,39 @@
 		won = initWon();
 	});
 	let gameOver: boolean = $derived(currentRow > data.wordLength);
+
+	// Countdown timer implementation
+	let timeLeft: { hours: number; minutes: number; seconds: number } = $state({
+		hours: 0,
+		minutes: 0,
+		seconds: 0
+	});
+	let timerInterval: number;
+
+	function updateTimeLeft() {
+		const now = new Date();
+		const tomorrow = new Date();
+		tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+		tomorrow.setUTCHours(0, 0, 0, 0);
+
+		const diffMs = tomorrow.getTime() - now.getTime();
+		const diffSecs = Math.floor(diffMs / 1000);
+
+		const hours = Math.floor(diffSecs / 3600);
+		const minutes = Math.floor((diffSecs % 3600) / 60);
+		const seconds = diffSecs % 60;
+
+		timeLeft = { hours, minutes, seconds };
+	}
+
+	onMount(() => {
+		updateTimeLeft();
+		timerInterval = setInterval(updateTimeLeft, 1000);
+	});
+
+	onDestroy(() => {
+		clearInterval(timerInterval);
+	});
 
 	function keyClicked(key: string): void {
 		if (gameOver) {
@@ -148,10 +181,17 @@
 	}
 </script>
 
-<nav class="w-full space-x-2 border-b px-6 py-4 text-black dark:text-white">
+<nav class="w-full border-b px-6 py-4 text-black dark:text-white flex justify-between items-center">
 	<button onclick={() => modals.open(HowToPlayModal)} class="hover:underline">
 		<img src="question-mark.svg" alt="How to play" class="h-8 w-8" />
 	</button>
+
+	<div class="text-center">
+		<p class="text-sm text-gray-600 dark:text-gray-300">Шинэ үг гарахад</p>
+		<div class="font-mono text-lg">
+			{timeLeft.hours.toString().padStart(2, '0')}:{timeLeft.minutes.toString().padStart(2, '0')}:{timeLeft.seconds.toString().padStart(2, '0')}
+		</div>
+	</div>
 </nav>
 
 {#if gameOver}
