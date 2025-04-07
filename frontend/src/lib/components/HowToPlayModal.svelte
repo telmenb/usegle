@@ -46,7 +46,9 @@
         <h2 class="text-center text-2xl font-semibold">Хэрхэн тоглох вэ?</h2>
         <p class="mt-4 text-lg"><b>Usegle</b> тоглоом нь дэлхийд алдартай болсон <b><a href="https://www.nytimes.com/games/wordle/index.html" target="_blank">Wordle</a></b> тоглоомын Монгол хувилбар юм.</p>
 
-        <ul class="list-disc list-outside my-4 ml-6">
+        <hr class="solid my-4">
+
+        <ul class="list-disc list-outside mb-4 ml-6">
           <li>Тоглоомын зорилго нь 5 үсэгтэй нууц үгийг 6 оролдлогоор таах юм.</li>
           <li>Тоглоомын явцад та зөв үсгүүдийн зөв байрыг олох хэрэгтэй.</li>
           <li>Оролдлого болгон дээр аль үсгийг зөв, буруу байршуулсан талаар хариу өгөх болно.</li>
@@ -63,7 +65,7 @@
             />
           {/each}
         </div>
-        <p class="mb-3"><span class="text-green-500">Ногоон</span> өнгөтэй үсэг нь зөв байранд байгаа үсэг.</p>
+        <p class="mb-3"><span class="text-green-500 font-semibold">Ногоон</span> өнгөтэй үсэг нь зөв байранд байгаа үсэг.</p>
 
         <div class="flex">
           {#each yellowExample as cell, i}
@@ -76,7 +78,7 @@
             />
           {/each}
         </div>
-        <p class="mb-3"><span class="text-yellow-500">Шар</span> өнгөтэй үсэг нь үгэнд байгаа боловч буруу байранд байгаа үсэг.</p>
+        <p class="mb-3"><span class="text-yellow-500 font-semibold">Шар</span> өнгөтэй үсэг нь үгэнд байгаа боловч буруу байранд байгаа үсэг.</p>
 
         <div class="flex">
           {#each grayExample as cell, i}
@@ -89,7 +91,7 @@
             />
           {/each}
         </div>
-        <p><span class="text-gray-500">Саарал</span> өнгөтэй үсэг нь нууц үгэнд байхгүй үсэг.</p>
+        <p><span class="text-gray-500 font-semibold">Саарал</span> өнгөтэй үсэг нь нууц үгэнд байхгүй үсэг.</p>
 
         <hr class="solid my-4">
 
