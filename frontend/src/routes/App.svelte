@@ -7,7 +7,6 @@
 	import Board from '$lib/components/Board.svelte';
 	import Keyboard from '$lib/components/Keyboard.svelte';
 	import HowToPlayModal from '$lib/components/HowToPlayModal.svelte';
-	import AboutModal from '$lib/components/AboutModal.svelte';
 	import { initBoard, initCurrentRow, initKeysColorMap, initWon, type Cell } from '$lib';
 	import { TextColor, StateColor } from '$lib/colors';
 	import type { SvelteMap } from 'svelte/reactivity';
@@ -150,9 +149,6 @@
 </script>
 
 <nav class="w-full space-x-2 border-b px-6 py-4 text-black dark:text-white">
-	<!-- <button onclick={() => modals.open(AboutModal)} class="hover:underline">
-		<img src="info.svg" alt="About" class="w-8 h-8" />
-	</button> -->
 	<button onclick={() => modals.open(HowToPlayModal)} class="hover:underline">
 		<img src="question-mark.svg" alt="How to play" class="h-8 w-8" />
 	</button>

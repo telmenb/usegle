@@ -14,7 +14,6 @@ export function initBoard(wordLength: number): Array<Array<Cell>> {
   const currentDate = new Date().toISOString().slice(0,10);
   const savedBoardState = getItemFromStorage(currentDate);
   if (savedBoardState) {
-    console.log('we got a board bih');
     return JSON.parse(savedBoardState);
   }
 
