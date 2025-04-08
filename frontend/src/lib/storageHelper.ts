@@ -14,6 +14,12 @@ export function getItemFromStorage(key: string): string | null {
   return null;
 }
 
+export function removeItemFromStorage(key: string) {
+  if (browser) {
+    localStorage.removeItem(key);
+  }
+}
+
 export function clearStorage() {
   if (browser) {
     localStorage.clear();

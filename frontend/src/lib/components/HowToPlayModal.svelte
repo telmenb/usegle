@@ -1,11 +1,13 @@
 <script lang="ts">
-	import type { Cell } from "$lib";
+	import { getThemeContext, type Cell } from "$lib";
 	import { StateColor, TextColor } from "$lib/colors";
 
   const {
     isOpen,
     close,
   } = $props()
+
+  let theme = getThemeContext();
 
   // Setup green example
   const greenExampleLetters: Array<string> = ['А', 'Х', 'М', 'А', 'Д']
@@ -36,10 +38,10 @@
 
 {#if isOpen}
   <div role="dialog" class="fixed inset-0 flex justify-center items-center pointer-events-none">
-    <div class="contents">
+    <div class="bg-white dark:bg-gray-600 contents">
       <div class="flex justify-end">
         <button onclick={() => close()}>
-          <img src="cross.svg" alt="Close" class="w-8 h-8" />
+          <img src="cross.svg" alt="Close" class="w-8 h-8 dark:invert" />
         </button>
       </div>
       <div class = "flex flex-col px-4">
@@ -59,7 +61,7 @@
             <input
               id={i.toString()}
               class="m-0.5 h-10 w-10 border border-gray-300 text-center text-2xl font-semibold
-                {cell.backgroundColor != StateColor.INACTIVE ? cell.backgroundColor : ''} {cell.textColor}"
+                {cell.backgroundColor != StateColor.INACTIVE ? cell.backgroundColor : ''} {!theme.darkMode ? cell.textColor : TextColor.WHITE}"
               bind:value={cell.value}
               disabled
             />
@@ -72,7 +74,7 @@
             <input
               id={i.toString()}
               class="m-0.5 h-10 w-10 border border-gray-300 text-center text-2xl font-semibold
-                {cell.backgroundColor != StateColor.INACTIVE ? cell.backgroundColor : ''} {cell.textColor}"
+                {cell.backgroundColor != StateColor.INACTIVE ? cell.backgroundColor : ''} {!theme.darkMode ? cell.textColor : TextColor.WHITE}"
               bind:value={cell.value}
               disabled
             />
@@ -85,7 +87,7 @@
             <input
               id={i.toString()}
               class="m-0.5 h-10 w-10 border border-gray-300 text-center text-2xl font-semibold
-                {cell.backgroundColor != StateColor.INACTIVE ? cell.backgroundColor : ''} {cell.textColor}"
+                {cell.backgroundColor != StateColor.INACTIVE ? cell.backgroundColor : ''} {!theme.darkMode ? cell.textColor : TextColor.WHITE}"
               bind:value={cell.value}
               disabled
             />
@@ -106,7 +108,6 @@
     min-width: 240px;
     max-width: 640px;
     padding: 1rem 1rem 2rem;
-    background: white;
     display: flex;
     flex-direction: column;
     justify-content: space-between;

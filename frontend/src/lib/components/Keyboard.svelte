@@ -1,7 +1,9 @@
 <script lang="ts">
-	import { keys } from '$lib';
+	import { getThemeContext, keys } from '$lib';
 	import { StateColor, TextColor } from '$lib/colors';
+
 	let { keyClicked, keysColorMap } = $props();
+	let theme = getThemeContext();
 
 	function onKeyDown(e: KeyboardEvent) {
 		if (e.key === 'Enter') {
@@ -35,7 +37,8 @@
 				<button
 					id={key}
 					class="m-0.5 h-14 w-8 select-none border text-center text-xl font-semibold transition-colors duration-1000
-						{keysColorMap.get(key)} {keysColorMap.get(key) === StateColor.INACTIVE
+						{keysColorMap.get(key)}
+						{!theme.darkMode && keysColorMap.get(key) === StateColor.INACTIVE
 						? TextColor.BLACK
 						: TextColor.WHITE}"
 					onclick={() => keyClicked(key)}>{key}</button
