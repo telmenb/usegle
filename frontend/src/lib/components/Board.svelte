@@ -12,8 +12,8 @@
 			{#each row as _, j}
 				<input
 					id={i + '-' + j}
-					class="m-0.5 h-14 w-14 border border-gray-300 text-center text-3xl font-semibold transition-colors duration-500
-						{board[i][j].backgroundColor != StateColor.INACTIVE ? board[i][j].backgroundColor : ''}
+					class="m-0.5 h-14 w-14 border border-gray-300 dark:border-gray-400 text-center text-3xl font-semibold transition-colors duration-500
+						{board[i][j].backgroundColor !== StateColor.INACTIVE ? board[i][j].backgroundColor : ''}
 						{!theme.darkMode ? board[i][j].textColor : TextColor.WHITE}"
 					bind:value={board[i][j].value}
 					disabled
