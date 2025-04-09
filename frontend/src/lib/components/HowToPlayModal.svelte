@@ -110,7 +110,7 @@
 					{/each}
 				</div>
 				<p>
-					<span class="font-semibold text-gray-500">Саарал</span> өнгөтэй үсэг нь нууц үгэнд байхгүй
+					<span class="font-semibold text-gray-500 dark:text-gray-700">Саарал</span> өнгөтэй үсэг нь нууц үгэнд байхгүй
 					үсэг.
 				</p>
 

@@ -29,19 +29,19 @@
 		<div class="flex {i === 0 ? 'ml-auto pr-8' : ''}">
 			{#if i === keys.length - 1}
 				<button
-					class="m-0.5 h-14 w-8 select-none border bg-gray-300 text-center text-xl font-semibold text-black transition-colors duration-700 dark:bg-transparent dark:text-white"
+					class="m-0.5 h-14 w-8 select-none border bg-gray-300 dark:border-gray-400 text-center text-xl font-semibold text-black transition-colors duration-700 dark:bg-gray-500 dark:text-white"
 					onclick={() => keyClicked('backspace')}>⌫</button
 				>
 			{/if}
 			{#each row as key}
 				<button
 					id={key}
-					class="m-0.5 h-14 w-8 select-none border text-center text-xl font-semibold transition-colors duration-700
+					class="m-0.5 h-14 w-8 select-none border bg-gray-300 dark:border-gray-400 text-center text-xl font-semibold transition-colors duration-700
 						{keysColorMap.get(key) !== StateColor.INACTIVE
 						? keysColorMap.get(key)
 						: !theme.darkMode
 							? StateColor.INACTIVE
-							: 'bg-transparent'}
+							: 'bg-gray-500'}
 						{!theme.darkMode && keysColorMap.get(key) === StateColor.INACTIVE
 						? TextColor.BLACK
 						: TextColor.WHITE}"
@@ -50,7 +50,7 @@
 			{/each}
 			{#if i === keys.length - 1}
 				<button
-					class="m-0.5 h-14 w-16 select-none border bg-gray-300 text-center text-sm font-semibold text-black transition-colors duration-700 dark:bg-transparent dark:text-white"
+					class="m-0.5 h-14 w-16 select-none border bg-gray-300 dark:border-gray-400 text-center text-sm font-semibold text-black transition-colors duration-700 dark:bg-gray-500 dark:text-white"
 					onclick={() => keyClicked('enter')}>ENTER</button
 				>
 			{/if}
