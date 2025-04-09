@@ -18,7 +18,7 @@
 		initCurrentRow,
 		initKeysColorMap,
 		initWon,
-		type Cell,
+		type Cell
 	} from '$lib';
 
 	let { data } = $props();
@@ -193,7 +193,10 @@
 <nav
 	class="flex w-full items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700"
 >
-	<button onclick={() => modals.open(HowToPlayModal)} class="transition-opacity hover:opacity-80">
+	<button
+		onclick={() => modals.open(HowToPlayModal)}
+		class="flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+	>
 		<img src="question-mark.svg" alt="How to play" class="h-8 w-8 dark:invert" />
 	</button>
 
@@ -208,13 +211,13 @@
 
 	<button
 		onclick={toggleDarkMode}
-		class="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-gray-200 dark:hover:bg-gray-700"
+		class="flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
 	>
 		{#if theme.darkMode}
 			<!-- Sun icon -->
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
-				class="h-5 w-5"
+				class="h-6 w-6"
 				viewBox="0 0 20 20"
 				fill="currentColor"
 			>
@@ -228,7 +231,7 @@
 			<!-- Moon icon -->
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
-				class="h-5 w-5"
+				class="h-6 w-6"
 				viewBox="0 0 20 20"
 				fill="currentColor"
 			>

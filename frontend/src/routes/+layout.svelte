@@ -15,8 +15,8 @@
 
 <div
 	id="root-layout"
-	class="bg-light-background dark:bg-dark-background notranslate flex h-screen flex-col items-center font-sans transition-colors duration-1000 dark:text-white
-		{theme.darkMode ? 'dark': ''}"
+	class="bg-light-background dark:bg-dark-background notranslate flex h-screen flex-col items-center font-sans transition-colors duration-500 dark:text-white
+		{theme.darkMode ? 'dark' : ''}"
 >
 	<div class="toast-container">
 		<SvelteToast options={toastOptions} />
