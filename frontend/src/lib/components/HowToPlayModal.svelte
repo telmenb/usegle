@@ -53,8 +53,15 @@
 				<h2 class="text-center text-2xl font-semibold">Хэрхэн тоглох вэ?</h2>
 				<p class="mt-4 text-lg">
 					<b>Usegle</b> тоглоом нь дэлхийд алдартай болсон
-					<b><a href="https://www.nytimes.com/games/wordle/index.html" target="_blank">Wordle</a></b
-					> тоглоомын Монгол хувилбар юм.
+					<b>
+						<a
+							href="https://www.nytimes.com/games/wordle/index.html"
+							target="_blank"
+							style="color: #6aaa64"
+						>
+							Wordle
+						</a>
+					</b> тоглоомын Монгол хувилбар юм.
 				</p>
 
 				<hr class="solid my-4" />
@@ -115,8 +122,8 @@
 					{/each}
 				</div>
 				<p>
-					<span class="font-semibold text-gray-500 dark:text-gray-700">Саарал</span> өнгөтэй үсэг нь нууц үгэнд байхгүй
-					үсэг.
+					<span class="font-semibold text-gray-500 dark:text-gray-700">Саарал</span> өнгөтэй үсэг нь
+					нууц үгэнд байхгүй үсэг.
 				</p>
 
 				<hr class="solid my-4" />
