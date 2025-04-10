@@ -3,7 +3,7 @@
 	import { Modals } from 'svelte-modals';
 	import { SvelteToast } from '@zerodevx/svelte-toast';
 	import { initDarkMode } from '$lib';
-	import { setContext } from 'svelte';
+	import { setContext, onMount } from 'svelte';
 
 	let { children } = $props();
 	const toastOptions = { duration: 3000 };
@@ -11,12 +11,19 @@
 		darkMode: initDarkMode()
 	});
 	setContext('theme', theme);
+
+	onMount(() => {
+		if (theme.darkMode) {
+			document.documentElement.classList.add('dark');
+		} else {
+			document.documentElement.classList.remove('dark');
+		}
+	});
 </script>
 
 <div
 	id="root-layout"
-	class="bg-light-background dark:bg-dark-background notranslate flex h-screen flex-col items-center font-sans transition-colors duration-500 dark:text-white
-		{theme.darkMode ? 'dark' : ''}"
+	class="bg-light-background dark:bg-dark-background notranslate flex h-screen flex-col items-center font-sans transition-colors duration-500 dark:text-white"
 >
 	<div class="toast-container">
 		<SvelteToast options={toastOptions} />

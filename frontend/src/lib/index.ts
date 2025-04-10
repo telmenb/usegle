@@ -45,7 +45,16 @@ export function initWon(): boolean {
 
 export function initDarkMode(): boolean {
   const darkMode = getItemFromStorage('darkMode');
-  return darkMode === 'true';
+  if (darkMode === 'true') {
+    return true;
+  }
+  if (darkMode === 'false') {
+    return false;
+  }
+  if (typeof window !== 'undefined') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  return false;
 }
 
 export function initKeysColorMap(): SvelteMap<string, StateColor> {

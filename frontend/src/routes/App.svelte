@@ -55,6 +55,12 @@
 	function toggleDarkMode() {
 		theme.darkMode = !theme.darkMode;
 		setItemInStorage('darkMode', theme.darkMode ? 'true' : 'false');
+
+		if (theme.darkMode) {
+			document.documentElement.classList.add('dark');
+		} else {
+			document.documentElement.classList.remove('dark');
+		}
 	}
 
 	function updateTimeLeft() {
