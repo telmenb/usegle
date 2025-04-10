@@ -54,7 +54,7 @@
 
 	function toggleDarkMode() {
 		theme.darkMode = !theme.darkMode;
-		setItemInStorage('darkMode', theme.darkMode);
+		setItemInStorage('darkMode', theme.darkMode ? 'true' : 'false');
 	}
 
 	function updateTimeLeft() {
@@ -121,13 +121,13 @@
 
 		if (board[currentRow].every((cell) => cell.backgroundColor === StateColor.CORRECT)) {
 			won = true;
-			setItemInStorage('won', true);
+			setItemInStorage('won', 'true');
 		}
 		currentCol = 0;
 		currentRow = won ? wordLength + 1 : currentRow + 1;
 
-		setItemInStorage(new Date().toISOString().slice(0, 10), board);
-		setItemInStorage('currentRow', currentRow);
+		setItemInStorage(new Date().toISOString().slice(0, 10), JSON.stringify(board));
+		setItemInStorage('currentRow', JSON.stringify(currentRow));
 	}
 
 	function handleBackspacePress(): void {

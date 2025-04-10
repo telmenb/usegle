@@ -20,7 +20,7 @@ export function initBoard(wordLength: number): Array<Array<Cell>> {
 
   const darkModePreference = getItemFromStorage('darkMode');
   clearStorage();
-  setItemInStorage('darkMode', Boolean(darkModePreference ?? false));
+  setItemInStorage('darkMode', darkModePreference === 'true' ? 'true' : 'false');
 
   return new Array<Array<Cell>>(wordLength + 1).fill([]).map(() => {
     return new Array<Cell>(wordLength).fill({
@@ -44,7 +44,8 @@ export function initWon(): boolean {
 }
 
 export function initDarkMode(): boolean {
-  return Boolean(getItemFromStorage('darkMode'));
+  const darkMode = getItemFromStorage('darkMode');
+  return darkMode === 'true';
 }
 
 export function initKeysColorMap(): SvelteMap<string, StateColor> {

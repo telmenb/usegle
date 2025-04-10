@@ -1,15 +1,15 @@
 import { browser } from "$app/environment";
 
-export function setItemInStorage(key: string, value: any) {
+export function setItemInStorage(key: string, value: string) {
   if (browser) {
-    localStorage.setItem(key, JSON.stringify(value));
+    localStorage.setItem(key, value);
   }
 }
 
 export function getItemFromStorage(key: string): string | null {
   if (browser) {
     const item = localStorage.getItem(key);
-    return item ?? null;
+    return item;
   }
   return null;
 }
