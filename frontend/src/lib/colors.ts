@@ -3,7 +3,7 @@ export enum StateColor {
   INCORRECT = "bg-gray-500 dark:bg-gray-700",
   PARTIAL = "bg-yellow-500",
   INACTIVE = "bg-gray-300",
-  ACTIVE = "border-gray-500 dark:border-gray-100",
+  ACTIVE = "border-gray-500 dark:border-gray-50",
 }
 
 export enum TextColor {
