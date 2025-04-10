@@ -266,7 +266,7 @@
 	</button>
 </nav>
 
-<main class="container mx-auto px-4 py-8">
+<main class="container h-full px-4 py-8">
 	{#if isLoading}
 		<div class="flex h-[70vh] items-center justify-center">
 			<div class="h-16 w-16 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"></div>
