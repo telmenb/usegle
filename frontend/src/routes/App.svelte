@@ -275,14 +275,14 @@
 		<div
 			class="flex flex-col items-center justify-center"
 			style="height: 70vh"
-			transition:fly={{ y: 200, duration: 1000 }}
+			in:fly={{ y: 200, duration: 1000 }}
 		>
 			<EndGame {board} {won} />
 		</div>
 	{:else}
 		<div
 			class="flex h-full flex-col items-center justify-evenly gap-8"
-			transition:fly={{ y: 20, duration: 300 }}
+			in:fly={{ y: 20, duration: 300 }}
 		>
 			<Board {board} />
 			<Keyboard {keyClicked} {keysColorMap} />
