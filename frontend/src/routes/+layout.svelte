@@ -4,6 +4,7 @@
 	import { SvelteToast } from '@zerodevx/svelte-toast';
 	import { initDarkMode } from '$lib';
 	import { setContext, onMount } from 'svelte';
+	import { setItemInStorage } from '$lib/storageHelper';
 
 	let { children } = $props();
 	const toastOptions = { duration: 3000 };
@@ -33,7 +34,10 @@
 		{#snippet backdrop({ close })}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
-			<div class="backdrop" onclick={() => close()}></div>
+			<div class="backdrop" onclick={() => {
+				setItemInStorage('hasSeenTutorial', 'true')
+				close()
+			}}></div>
 		{/snippet}
 	</Modals>
 	{@render children()}

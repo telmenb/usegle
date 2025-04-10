@@ -2,7 +2,7 @@
 	import { getThemeContext, type Cell } from '$lib';
 	import { StateColor, TextColor } from '$lib/colors';
 
-	const { isOpen, close } = $props();
+	const { isOpen, close, onClose = () => {} } = $props();
 
 	let theme = getThemeContext();
 
@@ -31,6 +31,11 @@
 			textColor: TextColor.BLACK
 		}));
 	}
+
+	function handleClose() {
+		onClose();
+		close();
+	}
 </script>
 
 {#if isOpen}
@@ -38,7 +43,7 @@
 		<div class="contents bg-white dark:bg-gray-600">
 			<div class="flex justify-end">
 				<button
-					onclick={() => close()}
+					onclick={handleClose}
 					class="flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
 				>
 					<img src="cross.svg" alt="Close" class="h-8 w-8 dark:invert" />

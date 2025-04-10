@@ -9,9 +9,9 @@
 	import { TextColor, StateColor } from '$lib/colors';
 	import type { SvelteMap } from 'svelte/reactivity';
 	import EndGame from '$lib/components/EndGame.svelte';
-	import { setItemInStorage } from '$lib/storageHelper';
+	import { setItemInStorage, getItemFromStorage } from '$lib/storageHelper';
 	import { PUBLIC_USEGLE_API_HOST } from '$env/static/public';
-	import { onMount, onDestroy, getContext } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import {
 		getThemeContext,
 		initBoard,
@@ -31,6 +31,7 @@
 	let board: Array<Array<Cell>> = $state([]);
 	let won: boolean = $state(false);
 	let gameOver: boolean = $derived(currentRow > data.wordLength);
+	let isLoading: boolean = $state(true);
 
 	let timeLeft: { hours: number; minutes: number; seconds: number } = $state({
 		hours: 0,
@@ -39,13 +40,31 @@
 	});
 	let timerInterval: number;
 
+	function isFirstVisit(): boolean {
+		return getItemFromStorage('hasSeenTutorial') !== 'true';
+	}
+
+	$effect(() => {
+		if (wordLength > 0) {
+			board = initBoard(wordLength);
+		}
+	});
+
 	onMount(() => {
-		board = initBoard(wordLength);
 		currentRow = initCurrentRow();
 		won = initWon();
+		isLoading = false;
 
 		updateTimeLeft();
 		timerInterval = setInterval(updateTimeLeft, 1000);
+
+		setTimeout(() => {
+			if (isFirstVisit()) {
+				modals.open(HowToPlayModal, {
+					onClose: () => setItemInStorage('hasSeenTutorial', 'true')
+				});
+			}
+		}, 300);
 	});
 
 	onDestroy(() => {
@@ -248,7 +267,11 @@
 </nav>
 
 <main class="container mx-auto px-4 py-8">
-	{#if gameOver}
+	{#if isLoading}
+		<div class="flex h-[70vh] items-center justify-center">
+			<div class="h-16 w-16 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"></div>
+		</div>
+	{:else if gameOver}
 		<div
 			class="flex flex-col items-center justify-center"
 			style="height: 70vh"
@@ -257,7 +280,10 @@
 			<EndGame {board} {won} />
 		</div>
 	{:else}
-		<div class="flex h-full flex-col items-center justify-evenly gap-8">
+		<div
+			class="flex h-full flex-col items-center justify-evenly gap-8"
+			transition:fly={{ y: 20, duration: 300 }}
+		>
 			<Board {board} />
 			<Keyboard {keyClicked} {keysColorMap} />
 		</div>
