@@ -1,6 +1,6 @@
 <script lang="ts">
 	import App from './App.svelte';
-	let { data, form } = $props();
+	let { data } = $props();
 </script>
 
-<App {data} {form} />
+<App {data} />
