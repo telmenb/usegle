@@ -6,11 +6,13 @@ import gameController from "./routes/game";
 dotenv.config();
 
 const app: Express = express();
-const port: number = process.env.PORT as unknown as number || 3000;
+const port: number = parseInt(process.env.PORT as string) || 3000;
 
 // Enable CORS
 const corsOptions: CorsOptions = {
-  origin: '*',
+  origin: process.env.NODE_ENV === 'production'
+    ? [process.env.PUBLIC_USEGLE_FRONTEND_HOST as string]
+    : '*',
   credentials: true,
   optionsSuccessStatus: 200,
 };
