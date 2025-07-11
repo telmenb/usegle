@@ -2,7 +2,7 @@
 	import { fly } from 'svelte/transition';
 	import { modals } from 'svelte-modals';
 	import { toast } from '@zerodevx/svelte-toast';
-	import axios from 'axios';
+	import axios, { type AxiosResponse } from 'axios';
 	import Board from '$lib/components/Board.svelte';
 	import Keyboard from '$lib/components/Keyboard.svelte';
 	import HowToPlayModal from '$lib/components/HowToPlayModal.svelte';
@@ -138,7 +138,6 @@
 
 		// Show error if word not in wordbank
 		if (result.length === 0) {
-			toast.push('Бөглөсөн үг үгийн санд байхгүй байна');
 			return;
 		}
 
@@ -175,25 +174,23 @@
 					'Content-Type': 'application/json',
 				}
 			});
-			console.log('API response:', response.data);
 			result = response.data.result;
 		} catch (error) {
-			console.error('API Error:', error);
-			if (axios.isAxiosError(error)) {
-				if (error.response) {
-					console.error('Response error:', error.response.status, error.response.data);
-					toast.push(`Серверийн алдаа: ${error.response.status}`);
-				} else if (error.request) {
-					console.error('Network error:', error.message);
-					toast.push('Сүлжээний алдаа. Дахин оролдоно уу.');
-				} else {
-					console.error('Request setup error:', error.message);
-					toast.push('Хүсэлт илгээхэд алдаа гарлаа.');
-				}
+			if (axios.isAxiosError(error) && error.response) {
+				handleAxiosErrorResponse(error.response);
 			}
 			result = [];
 		}
 		return result;
+	}
+
+	function handleAxiosErrorResponse(response: AxiosResponse<any, any>): void {
+		if (response.status === 404) {
+			toast.push('Бөглөсөн үг үгийн санд байхгүй байна');
+		} else {
+			toast.push(`Серверийн алдаа: ${response.status}`);
+			console.error('Response error:', response.status, response.data);
+		}
 	}
 
 	function updateCellAndKeyColors(guess: string, result: Array<number>): void {

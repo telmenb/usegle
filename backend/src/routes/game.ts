@@ -20,7 +20,7 @@ let cachedAnswer: string = 'хамаг';
 
 router.get("/init", async (req: Request, res: Response) => {
   if (!redisClient.isReady) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ errorMessage: 'Internal database error' });
     return;
   }
 
@@ -46,12 +46,12 @@ router.get("/wordBank", (req: Request, res: Response) => {
 router.post("/checkGuess", (req: Request, res: Response) => {
   const { guess } = req.body as GuessWordRequest;
   if (!guess) {
-    res.status(400).json({ message: "Bad guess property" });
+    res.status(400).json({ errorMessage: "Bad guess property" });
     return;
   }
 
   if (!wordMap.has(guess.toLowerCase())) {
-    res.status(400).json({ message: "Word not in word bank" });
+    res.status(404).json({ errorMessage: "Word not found in word bank" });
     return;
   }
 
@@ -76,12 +76,12 @@ function getGuessResult(guess: string, answer: string): Array<number> {
 
 function readWordList(): Map<string, boolean> {
   const wordMap = new Map<string, boolean>();
-  
+
   try {
     const filePath = path.join(__dirname, '../../data/mongolian_words_5_letters.txt');
     const content = fs.readFileSync(filePath, 'utf8');
     const words = content.split('\n');
-    
+
     for (const word of words) {
       if (word.trim()) {
         wordMap.set(word.trim(), true);
