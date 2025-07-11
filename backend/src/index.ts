@@ -25,6 +25,15 @@ app.use((req: Request, res: Response, next) => {
   next();
 })
 
+// Health check route for Railway
+app.get("/", (req: Request, res: Response) => {
+  res.status(200).json({
+    status: "healthy",
+    message: "Usegle Backend API is running",
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Routes
 app.use("/api/game", gameController);
 
