@@ -168,16 +168,31 @@
 
 	async function checkGuess(guess: string): Promise<Array<number>> {
 		let result: Array<number> = [];
-		await axios
-			.post(`${PUBLIC_USEGLE_API_HOST}/api/game/checkGuess`, { guess })
-			.then((response) => {
-				console.log(response.data);
-				result = response.data.result;
-			})
-			.catch((error) => {
-				console.error(error);
-				result = [];
+		try {
+			const response = await axios.post(`${PUBLIC_USEGLE_API_HOST}/api/game/checkGuess`, { guess }, {
+				timeout: 10000, // 10 second timeout
+				headers: {
+					'Content-Type': 'application/json',
+				}
 			});
+			console.log('API response:', response.data);
+			result = response.data.result;
+		} catch (error) {
+			console.error('API Error:', error);
+			if (axios.isAxiosError(error)) {
+				if (error.response) {
+					console.error('Response error:', error.response.status, error.response.data);
+					toast.push(`Серверийн алдаа: ${error.response.status}`);
+				} else if (error.request) {
+					console.error('Network error:', error.message);
+					toast.push('Сүлжээний алдаа. Дахин оролдоно уу.');
+				} else {
+					console.error('Request setup error:', error.message);
+					toast.push('Хүсэлт илгээхэд алдаа гарлаа.');
+				}
+			}
+			result = [];
+		}
 		return result;
 	}
 
