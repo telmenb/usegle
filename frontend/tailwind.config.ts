@@ -23,6 +23,10 @@ export default {
 				'safe-bottom': 'env(safe-area-inset-bottom)',
 				'safe-left': 'env(safe-area-inset-left)',
 				'safe-right': 'env(safe-area-inset-right)',
+				'18': '4.5rem', // 72px for xl sizes
+			},
+			fontSize: {
+				'5xl': ['3rem', { lineHeight: '1' }], // 48px for xl board text
 			}
 		}
 	},

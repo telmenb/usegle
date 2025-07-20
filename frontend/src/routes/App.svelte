@@ -232,18 +232,22 @@
 </script>
 
 <nav
-	class="flex w-full items-center justify-between border-b border-gray-200 px-3 py-3 sm:px-6 sm:py-4 dark:border-gray-700"
+	class="flex w-full items-center justify-between border-b border-gray-200 px-3 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-6 dark:border-gray-700"
 >
 	<button
 		onclick={() => modals.open(HowToPlayModal)}
-		class="flex h-8 w-8 touch-manipulation items-center justify-center rounded-full hover:bg-gray-200 sm:h-10 sm:w-10 dark:hover:bg-gray-700"
+		class="flex h-8 w-8 touch-manipulation items-center justify-center rounded-full hover:bg-gray-200 sm:h-10 sm:w-10 lg:h-12 lg:w-12 dark:hover:bg-gray-700"
 	>
-		<img src="question-mark.svg" alt="How to play" class="h-6 w-6 sm:h-8 sm:w-8 dark:invert" />
+		<img
+			src="question-mark.svg"
+			alt="How to play"
+			class="h-6 w-6 sm:h-8 sm:w-8 lg:h-10 lg:w-10 dark:invert"
+		/>
 	</button>
 
 	<div class="text-center">
-		<p class="text-xs text-gray-600 sm:text-sm dark:text-gray-300">Шинэ үг гарахад</p>
-		<div class="font-mono text-sm sm:text-lg">
+		<p class="text-xs text-gray-600 sm:text-sm lg:text-base dark:text-gray-300">Шинэ үг гарахад</p>
+		<div class="font-mono text-sm sm:text-lg lg:text-xl xl:text-2xl">
 			{timeLeft.hours.toString().padStart(2, '0')}:{timeLeft.minutes
 				.toString()
 				.padStart(2, '0')}:{timeLeft.seconds.toString().padStart(2, '0')}
@@ -252,13 +256,13 @@
 
 	<button
 		onclick={toggleDarkMode}
-		class="flex h-8 w-8 touch-manipulation items-center justify-center rounded-full hover:bg-gray-200 sm:h-8 sm:w-8 dark:hover:bg-gray-700"
+		class="flex h-8 w-8 touch-manipulation items-center justify-center rounded-full hover:bg-gray-200 sm:h-8 sm:w-8 lg:h-12 lg:w-12 dark:hover:bg-gray-700"
 	>
 		{#if theme.darkMode}
 			<!-- Sun icon -->
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
-				class="h-5 w-5 sm:h-6 sm:w-6"
+				class="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8"
 				viewBox="0 0 20 20"
 				fill="currentColor"
 			>
@@ -272,7 +276,7 @@
 			<!-- Moon icon -->
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
-				class="h-5 w-5 sm:h-6 sm:w-6"
+				class="h-5 w-5 sm:h-6 sm:w-6 lg:h-8 lg:w-8"
 				viewBox="0 0 20 20"
 				fill="currentColor"
 			>
@@ -282,11 +286,13 @@
 	</button>
 </nav>
 
-<main class="container flex h-full flex-1 flex-col px-2 py-4 sm:px-4 sm:py-8">
+<main
+	class="container flex h-full flex-1 flex-col px-2 py-4 sm:px-4 sm:py-8 lg:px-8 lg:py-12 xl:max-w-6xl"
+>
 	{#if isLoading}
 		<div class="flex flex-1 items-center justify-center">
 			<div
-				class="h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600 sm:h-16 sm:w-16"
+				class="h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600 sm:h-16 sm:w-16 lg:h-20 lg:w-20"
 			></div>
 		</div>
 	{:else if gameOver}
@@ -298,13 +304,13 @@
 		</div>
 	{:else}
 		<div
-			class="flex h-full max-h-full flex-col items-center justify-center gap-4 sm:gap-8"
+			class="flex h-full max-h-full flex-col items-center justify-center gap-4 sm:gap-8 lg:gap-12"
 			in:fly={{ y: 20, duration: 300 }}
 		>
 			<div class="flex max-h-[60vh] flex-1 items-center justify-center sm:max-h-none">
 				<Board {board} />
 			</div>
-			<div class="w-full max-w-lg">
+			<div class="w-full max-w-lg lg:max-w-2xl xl:max-w-4xl">
 				<Keyboard {keyClicked} {keysColorMap} />
 			</div>
 		</div>
