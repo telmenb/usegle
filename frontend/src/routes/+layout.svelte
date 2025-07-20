@@ -24,7 +24,8 @@
 
 <div
 	id="root-layout"
-	class="bg-light-background dark:bg-dark-background notranslate flex h-screen flex-col items-center font-sans transition-colors duration-500 dark:text-white"
+	class="bg-light-background dark:bg-dark-background notranslate flex h-screen w-full flex-col items-center overflow-hidden font-sans transition-colors duration-500 dark:text-white"
+	style="padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right);"
 >
 	<div class="toast-container">
 		<SvelteToast options={toastOptions} />
@@ -34,10 +35,13 @@
 		{#snippet backdrop({ close })}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
-			<div class="backdrop" onclick={() => {
-				setItemInStorage('hasSeenTutorial', 'true')
-				close()
-			}}></div>
+			<div
+				class="backdrop"
+				onclick={() => {
+					setItemInStorage('hasSeenTutorial', 'true');
+					close();
+				}}
+			></div>
 		{/snippet}
 	</Modals>
 	{@render children()}

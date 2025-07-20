@@ -168,12 +168,16 @@
 	async function checkGuess(guess: string): Promise<Array<number>> {
 		let result: Array<number> = [];
 		try {
-			const response = await axios.post(`${PUBLIC_USEGLE_API_HOST}/api/game/checkGuess`, { guess }, {
-				timeout: 10000, // 10 second timeout
-				headers: {
-					'Content-Type': 'application/json',
+			const response = await axios.post(
+				`${PUBLIC_USEGLE_API_HOST}/api/game/checkGuess`,
+				{ guess },
+				{
+					timeout: 10000, // 10 second timeout
+					headers: {
+						'Content-Type': 'application/json'
+					}
 				}
-			});
+			);
 			result = response.data.result;
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response) {
@@ -228,18 +232,18 @@
 </script>
 
 <nav
-	class="flex w-full items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700"
+	class="flex w-full items-center justify-between border-b border-gray-200 px-3 py-3 sm:px-6 sm:py-4 dark:border-gray-700"
 >
 	<button
 		onclick={() => modals.open(HowToPlayModal)}
-		class="flex h-10 w-10 items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+		class="flex h-8 w-8 touch-manipulation items-center justify-center rounded-full hover:bg-gray-200 sm:h-10 sm:w-10 dark:hover:bg-gray-700"
 	>
-		<img src="question-mark.svg" alt="How to play" class="h-8 w-8 dark:invert" />
+		<img src="question-mark.svg" alt="How to play" class="h-6 w-6 sm:h-8 sm:w-8 dark:invert" />
 	</button>
 
 	<div class="text-center">
-		<p class="text-sm text-gray-600 dark:text-gray-300">Шинэ үг гарахад</p>
-		<div class="font-mono text-lg">
+		<p class="text-xs text-gray-600 sm:text-sm dark:text-gray-300">Шинэ үг гарахад</p>
+		<div class="font-mono text-sm sm:text-lg">
 			{timeLeft.hours.toString().padStart(2, '0')}:{timeLeft.minutes
 				.toString()
 				.padStart(2, '0')}:{timeLeft.seconds.toString().padStart(2, '0')}
@@ -248,13 +252,13 @@
 
 	<button
 		onclick={toggleDarkMode}
-		class="flex h-8 w-8 items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+		class="flex h-8 w-8 touch-manipulation items-center justify-center rounded-full hover:bg-gray-200 sm:h-8 sm:w-8 dark:hover:bg-gray-700"
 	>
 		{#if theme.darkMode}
 			<!-- Sun icon -->
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
-				class="h-6 w-6"
+				class="h-5 w-5 sm:h-6 sm:w-6"
 				viewBox="0 0 20 20"
 				fill="currentColor"
 			>
@@ -268,7 +272,7 @@
 			<!-- Moon icon -->
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
-				class="h-6 w-6"
+				class="h-5 w-5 sm:h-6 sm:w-6"
 				viewBox="0 0 20 20"
 				fill="currentColor"
 			>
@@ -278,26 +282,31 @@
 	</button>
 </nav>
 
-<main class="container h-full px-4 py-8">
+<main class="container flex h-full flex-1 flex-col px-2 py-4 sm:px-4 sm:py-8">
 	{#if isLoading}
-		<div class="flex h-[70vh] items-center justify-center">
-			<div class="h-16 w-16 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"></div>
+		<div class="flex flex-1 items-center justify-center">
+			<div
+				class="h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600 sm:h-16 sm:w-16"
+			></div>
 		</div>
 	{:else if gameOver}
 		<div
-			class="flex flex-col items-center justify-center"
-			style="height: 70vh"
+			class="flex flex-1 flex-col items-center justify-center"
 			in:fly={{ y: 200, duration: 1000 }}
 		>
 			<EndGame {board} {won} />
 		</div>
 	{:else}
 		<div
-			class="flex h-full flex-col items-center justify-evenly gap-8"
+			class="flex h-full max-h-full flex-col items-center justify-center gap-4 sm:gap-8"
 			in:fly={{ y: 20, duration: 300 }}
 		>
-			<Board {board} />
-			<Keyboard {keyClicked} {keysColorMap} />
+			<div class="flex max-h-[60vh] flex-1 items-center justify-center sm:max-h-none">
+				<Board {board} />
+			</div>
+			<div class="w-full max-w-lg">
+				<Keyboard {keyClicked} {keysColorMap} />
+			</div>
 		</div>
 	{/if}
 </main>

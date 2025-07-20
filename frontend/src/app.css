@@ -1,3 +1,72 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
+/* Mobile-specific improvements */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    height: 100%;
+  }
+
+  body {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Improve touch targets */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Prevent zoom on input focus for iOS */
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  @media screen and (max-width: 640px) {
+
+    input,
+    textarea,
+    select {
+      font-size: 16px;
+    }
+  }
+
+  /* Disable pull-to-refresh on mobile */
+  html,
+  body {
+    overscroll-behavior-y: contain;
+  }
+
+  /* Handle viewport height issues on mobile browsers */
+  .h-screen {
+    height: 100vh;
+    height: 100dvh;
+    /* Dynamic viewport height for modern browsers */
+  }
+}
+
+/* Custom utility for preventing text selection on game elements */
+@layer utilities {
+  .select-none {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Utilities for mobile-first responsive design */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

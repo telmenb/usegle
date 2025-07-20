@@ -7,6 +7,9 @@ export default {
 
 	theme: {
 		extend: {
+			screens: {
+				'xs': '375px',
+			},
 			colors: {
 				'light-background': '#f8f8f8',
 				'dark-background': '#292d33',
@@ -14,6 +17,12 @@ export default {
 				'primary-dark': '#758547',
 				'secondary': '#d0caa9',
 				'secondary-dark': '#56502f'
+			},
+			spacing: {
+				'safe-top': 'env(safe-area-inset-top)',
+				'safe-bottom': 'env(safe-area-inset-bottom)',
+				'safe-left': 'env(safe-area-inset-left)',
+				'safe-right': 'env(safe-area-inset-right)',
 			}
 		}
 	},
