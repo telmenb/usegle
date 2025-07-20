@@ -11,7 +11,7 @@ const port: number = parseInt(process.env.PORT as string) || 3000;
 // Enable CORS
 const corsOptions: CorsOptions = {
   origin: process.env.NODE_ENV === 'production'
-    ? [process.env.PUBLIC_USEGLE_FRONTEND_HOST as string]
+    ? (process.env.PUBLIC_USEGLE_FRONTEND_HOSTS as string).split(',')
     : '*',
   credentials: true,
   optionsSuccessStatus: 200,
