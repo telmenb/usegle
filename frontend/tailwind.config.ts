@@ -9,6 +9,10 @@ export default {
 		extend: {
 			screens: {
 				'xs': '375px',
+				'sm': '768px',
+				'md': '1024px',
+				'lg': '1920px',
+				'xl': '2560px',
 			},
 			colors: {
 				'light-background': '#f8f8f8',
