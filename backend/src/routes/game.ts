@@ -1,8 +1,10 @@
 import express, { Router, Request, Response } from 'express';
+import { GuessWordRequest } from '../models/GuessWordRequest';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createClient } from 'redis';
 import dotenv from "dotenv";
+import { isWordInDictionary } from '../services/dictionary-service';
 
 const router: Router = express.Router();
 const wordMap: Map<string, boolean> = readWordList();
@@ -43,15 +45,15 @@ router.get("/wordBank", (req: Request, res: Response) => {
   res.json({ wordBank });
 });
 
-router.post("/checkGuess", (req: Request, res: Response) => {
+router.post("/checkGuess", async (req: Request, res: Response) => {
   const { guess } = req.body as GuessWordRequest;
   if (!guess) {
     res.status(400).json({ errorMessage: "Bad guess property" });
     return;
   }
 
-  if (!wordMap.has(guess.toLowerCase())) {
-    res.status(404).json({ errorMessage: "Word not found in word bank" });
+  if (!await isWordInDictionary(guess)) {
+    res.status(404).json({ errorMessage: "Word not found in dictionary" });
     return;
   }
 
@@ -106,10 +108,6 @@ function getRedisClient() {
   client.on('error', err => console.log('Redis Client Error', err));
   client.connect();
   return client;
-}
-
-interface GuessWordRequest {
-  guess: string;
 }
 
 export default router;
