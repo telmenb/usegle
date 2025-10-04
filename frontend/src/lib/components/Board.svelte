@@ -12,7 +12,7 @@
 			{#each row as _, j}
 				<input
 					id={i + '-' + j}
-					class="touch-manipulation rounded border border-gray-300 text-center font-semibold
+					class="game-cell touch-manipulation rounded border border-gray-300 text-center font-semibold
 					transition-colors duration-500 dark:border-gray-400
 					h-10 w-10 text-lg
 					md:h-14 md:w-14 md:text-3xl

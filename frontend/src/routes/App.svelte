@@ -304,7 +304,7 @@
 		</div>
 	{:else}
 		<div
-			class="flex min-h-0 max-h-full flex-col items-center justify-center gap-2 sm:gap-4 lg:gap-8"
+			class="flex min-h-0 flex-1 max-h-full flex-col items-center justify-center gap-2 sm:gap-4 lg:gap-8"
 			in:fly={{ y: 20, duration: 300 }}
 		>
 			<div class="flex max-h-[50vh] flex-1 items-center justify-center sm:max-h-[60vh] lg:max-h-none">
