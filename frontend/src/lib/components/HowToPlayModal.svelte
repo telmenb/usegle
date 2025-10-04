@@ -79,10 +79,9 @@
 					{#each greenExample as cell, i}
 						<input
 							id={i.toString()}
-							class="game-cell h-8 w-8 rounded border border-gray-300 text-center text-lg font-semibold sm:h-10 sm:w-10 sm:text-2xl
-                {cell.backgroundColor != StateColor.INACTIVE
-								? cell.backgroundColor
-								: ''} {!theme.darkMode ? cell.textColor : TextColor.WHITE}"
+							class={`game-cell h-8 w-8 rounded border border-gray-300 text-center text-lg font-semibold sm:h-10 sm:w-10 sm:text-2xl
+						${cell.backgroundColor}
+						${!theme.darkMode ? cell.textColor : TextColor.WHITE}`}
 							bind:value={cell.value}
 							disabled
 						/>
@@ -97,10 +96,9 @@
 					{#each yellowExample as cell, i}
 						<input
 							id={i.toString()}
-							class="game-cell h-8 w-8 rounded border border-gray-300 text-center text-lg font-semibold sm:h-10 sm:w-10 sm:text-2xl
-                {cell.backgroundColor != StateColor.INACTIVE
-								? cell.backgroundColor
-								: ''} {!theme.darkMode ? cell.textColor : TextColor.WHITE}"
+							class={`game-cell h-8 w-8 rounded border border-gray-300 text-center text-lg font-semibold sm:h-10 sm:w-10 sm:text-2xl
+						${cell.backgroundColor}
+						${!theme.darkMode ? cell.textColor : TextColor.WHITE}`}
 							bind:value={cell.value}
 							disabled
 						/>
@@ -115,10 +113,9 @@
 					{#each grayExample as cell, i}
 						<input
 							id={i.toString()}
-							class="game-cell h-8 w-8 rounded border border-gray-300 text-center text-lg font-semibold sm:h-10 sm:w-10 sm:text-2xl
-                {cell.backgroundColor != StateColor.INACTIVE
-								? cell.backgroundColor
-								: ''} {!theme.darkMode ? cell.textColor : TextColor.WHITE}"
+							class={`game-cell h-8 w-8 rounded border border-gray-300 text-center text-lg font-semibold sm:h-10 sm:w-10 sm:text-2xl
+						${cell.backgroundColor}
+						${!theme.darkMode ? cell.textColor : TextColor.WHITE}`}
 							bind:value={cell.value}
 							disabled
 						/>
