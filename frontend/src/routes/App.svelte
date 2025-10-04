@@ -30,6 +30,9 @@
 	let keysColorMap: SvelteMap<string, StateColor> = $state(initKeysColorMap());
 	let board: Array<Array<Cell>> = $state([]);
 	let won: boolean = $state(false);
+	let isSubmitting: boolean = $state(false);
+	let showSubmittingSpinner: boolean = $state(false);
+	let submittingSpinnerTimeout: number | null = null;
 	let gameOver: boolean = $derived(currentRow > data.wordLength);
 	let isLoading: boolean = $state(true);
 
@@ -69,6 +72,31 @@
 
 	onDestroy(() => {
 		clearInterval(timerInterval);
+		if (submittingSpinnerTimeout !== null) {
+			clearTimeout(submittingSpinnerTimeout);
+		}
+	});
+
+	$effect(() => {
+		if (isSubmitting) {
+			if (typeof window === 'undefined') {
+				showSubmittingSpinner = true;
+				return;
+			}
+
+			if (submittingSpinnerTimeout === null) {
+				submittingSpinnerTimeout = window.setTimeout(() => {
+					showSubmittingSpinner = true;
+					submittingSpinnerTimeout = null;
+				}, 200);
+			}
+		} else {
+			showSubmittingSpinner = false;
+			if (submittingSpinnerTimeout !== null) {
+				clearTimeout(submittingSpinnerTimeout);
+				submittingSpinnerTimeout = null;
+			}
+		}
 	});
 
 	function toggleDarkMode() {
@@ -99,7 +127,7 @@
 	}
 
 	function keyClicked(key: string): void {
-		if (gameOver) {
+		if (gameOver || isSubmitting) {
 			return;
 		}
 
@@ -124,34 +152,44 @@
 	}
 
 	async function handleEnterPress(): Promise<void> {
+		if (isSubmitting) {
+			return;
+		}
+
 		if (currentCol !== wordLength - 1 || board[currentRow][currentCol].value === '') {
 			toast.push('Дутуу бөглөсөн байна');
 			return;
 		}
 
-		// Post current row to server to check if word in wordbank and is match
-		let guess = board[currentRow]
-			.map((row) => row.value)
-			.join('')
-			.toLowerCase();
-		let result = await checkGuess(guess);
+		isSubmitting = true;
 
-		// Show error if word not in wordbank
-		if (result.length === 0) {
-			return;
+		try {
+			// Post current row to server to check if word in wordbank and is match
+			let guess = board[currentRow]
+				.map((row) => row.value)
+				.join('')
+				.toLowerCase();
+			let result = await checkGuess(guess);
+
+			// Show error if word not in wordbank
+			if (result.length === 0) {
+				return;
+			}
+
+			updateCellAndKeyColors(guess, result);
+
+			if (board[currentRow].every((cell) => cell.backgroundColor === StateColor.CORRECT)) {
+				won = true;
+				setItemInStorage('won', 'true');
+			}
+			currentCol = 0;
+			currentRow = won ? wordLength + 1 : currentRow + 1;
+
+			setItemInStorage(new Date().toISOString().slice(0, 10), JSON.stringify(board));
+			setItemInStorage('currentRow', JSON.stringify(currentRow));
+		} finally {
+			isSubmitting = false;
 		}
-
-		updateCellAndKeyColors(guess, result);
-
-		if (board[currentRow].every((cell) => cell.backgroundColor === StateColor.CORRECT)) {
-			won = true;
-			setItemInStorage('won', 'true');
-		}
-		currentCol = 0;
-		currentRow = won ? wordLength + 1 : currentRow + 1;
-
-		setItemInStorage(new Date().toISOString().slice(0, 10), JSON.stringify(board));
-		setItemInStorage('currentRow', JSON.stringify(currentRow));
 	}
 
 	function handleBackspacePress(): void {
@@ -307,11 +345,29 @@
 			class="flex min-h-0 flex-1 max-h-full flex-col items-center justify-center gap-2 sm:gap-4 lg:gap-8"
 			in:fly={{ y: 20, duration: 300 }}
 		>
-			<div class="flex max-h-[50vh] flex-1 items-center justify-center sm:max-h-[60vh] lg:max-h-none">
+			<div
+				class="relative flex max-h-[50vh] flex-1 items-center justify-center sm:max-h-[60vh] lg:max-h-none"
+				aria-busy={isSubmitting}
+			>
 				<Board {board} />
+				{#if showSubmittingSpinner}
+					<div
+						class="pointer-events-none absolute inset-0 flex items-center justify-center"
+					>
+						<div
+							class="flex flex-col items-center gap-2 rounded-md bg-white/70 px-4 py-3 text-sm font-medium text-gray-800 shadow-md dark:bg-gray-900/70 dark:text-gray-100"
+							role="status"
+							aria-live="polite"
+						>
+							<div
+								class="h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600 sm:h-10 sm:w-10"
+							></div>
+						</div>
+					</div>
+				{/if}
 			</div>
 			<div class="w-full max-w-lg lg:max-w-2xl xl:max-w-4xl flex-shrink-0">
-				<Keyboard {keyClicked} {keysColorMap} />
+				<Keyboard {keyClicked} {keysColorMap} isDisabled={isSubmitting} />
 			</div>
 		</div>
 	{/if}

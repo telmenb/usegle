@@ -2,8 +2,9 @@
 	import { getThemeContext, keys } from '$lib';
 	import { StateColor, TextColor } from '$lib/colors';
 
-	let { keyClicked, keysColorMap } = $props();
+	let { keyClicked, keysColorMap, isDisabled } = $props();
 	let theme = getThemeContext();
+	let keyboardDisabled = $derived(isDisabled ?? false);
 
 	const letterKeys = new Set<string>(
 		keys.reduce((accumulator, row) => {
@@ -15,6 +16,10 @@
 	let pressedKey: string | null = $state(null);
 
 	function pressKey(key: string) {
+		if (keyboardDisabled) {
+			pressedKey = null;
+			return;
+		}
 		pressedKey = key;
 	}
 
@@ -25,6 +30,9 @@
 	}
 
 	function submitKey(key: string, options?: { skipPress?: boolean }) {
+		if (keyboardDisabled) {
+			return;
+		}
 		if (!options?.skipPress) {
 			pressKey(key);
 		}
@@ -33,6 +41,9 @@
 	}
 
 	function onKeyDown(e: KeyboardEvent) {
+		if (keyboardDisabled) {
+			return;
+		}
 		if (e.key === 'Enter') {
 			submitKey('enter');
 			return;
@@ -51,6 +62,9 @@
 	}
 
 	function onKeyUp(e: KeyboardEvent) {
+		if (keyboardDisabled) {
+			return;
+		}
 		if (e.key === 'Enter') {
 			releaseKey('enter');
 			return;
@@ -66,7 +80,7 @@
 	}
 </script>
 
-<div class="flex flex-col items-center gap-1 sm:gap-1.5 lg:gap-2">
+<div class="flex flex-col items-center gap-1 sm:gap-1.5 lg:gap-2" aria-disabled={keyboardDisabled}>
 	{#each keys as row, i}
 		<div
 			class="flex gap-1 sm:gap-1.5 lg:gap-2 {i === 0
@@ -80,13 +94,15 @@
 					md:h-14 md:min-w-[40px] md:text-lg
 					lg:h-16 lg:min-w-[48px] lg:rounded-md lg:px-3 lg:text-xl
 					xl:h-18 xl:min-w-[56px] xl:px-4 xl:text-2xl
-					dark:border-gray-400 dark:bg-gray-500 dark:text-white"
+					disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-400 dark:bg-gray-500 dark:text-white"
 					class:pressing={pressedKey === 'backspace'}
 					onpointerdown={() => pressKey('backspace')}
 					onpointerup={() => releaseKey('backspace')}
 					onpointerleave={() => releaseKey('backspace')}
 					onpointercancel={() => releaseKey('backspace')}
 					onclick={() => submitKey('backspace', { skipPress: true })}
+					disabled={keyboardDisabled}
+					aria-disabled={keyboardDisabled}
 					aria-pressed={pressedKey === 'backspace'}
 					type="button">⌫</button
 				>
@@ -107,13 +123,15 @@
 							: 'bg-gray-500'}
 					{!theme.darkMode && keysColorMap.get(key) === StateColor.INACTIVE
 						? TextColor.BLACK
-						: TextColor.WHITE}"
+						: TextColor.WHITE} disabled:cursor-not-allowed disabled:opacity-60"
 					class:pressing={pressedKey === key}
 					onpointerdown={() => pressKey(key)}
 					onpointerup={() => releaseKey(key)}
 					onpointerleave={() => releaseKey(key)}
 					onpointercancel={() => releaseKey(key)}
 					onclick={() => submitKey(key, { skipPress: true })}
+					disabled={keyboardDisabled}
+					aria-disabled={keyboardDisabled}
 					aria-pressed={pressedKey === key}
 					type="button">{key}</button
 				>
@@ -125,13 +143,15 @@
 					md:h-14 md:min-w-[64px] md:text-base
 					lg:h-16 lg:min-w-[80px] lg:rounded-md lg:px-3 lg:text-lg
 					xl:h-18 xl:min-w-[96px] xl:px-4 xl:text-xl
-					dark:border-gray-400 dark:bg-gray-500 dark:text-white"
+					disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-400 dark:bg-gray-500 dark:text-white"
 					class:pressing={pressedKey === 'enter'}
 					onpointerdown={() => pressKey('enter')}
 					onpointerup={() => releaseKey('enter')}
 					onpointerleave={() => releaseKey('enter')}
 					onpointercancel={() => releaseKey('enter')}
 					onclick={() => submitKey('enter', { skipPress: true })}
+					disabled={keyboardDisabled}
+					aria-disabled={keyboardDisabled}
 					aria-pressed={pressedKey === 'enter'}
 					type="button">ENTER</button
 				>
