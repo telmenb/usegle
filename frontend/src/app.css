@@ -52,6 +52,14 @@
     height: 100vh;
     height: 100dvh;
     /* Dynamic viewport height for modern browsers */
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* Better mobile viewport handling */
+  .mobile-safe-height {
+    height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   }
 }
 

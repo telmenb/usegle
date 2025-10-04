@@ -287,7 +287,7 @@
 </nav>
 
 <main
-	class="container flex h-full flex-1 flex-col px-2 py-4 sm:px-4 sm:py-8 lg:px-8 lg:py-12 xl:max-w-6xl"
+	class="container flex h-full flex-1 flex-col px-2 py-4 sm:px-4 sm:py-8 lg:px-8 lg:py-12 xl:max-w-6xl overflow-hidden"
 >
 	{#if isLoading}
 		<div class="flex flex-1 items-center justify-center">
@@ -304,13 +304,13 @@
 		</div>
 	{:else}
 		<div
-			class="flex h-full max-h-full flex-col items-center justify-center gap-4 sm:gap-8 lg:gap-12"
+			class="flex h-full max-h-full flex-col items-center justify-center gap-2 sm:gap-4 lg:gap-8"
 			in:fly={{ y: 20, duration: 300 }}
 		>
-			<div class="flex max-h-[60vh] flex-1 items-center justify-center sm:max-h-none">
+			<div class="flex max-h-[50vh] flex-1 items-center justify-center sm:max-h-[60vh] lg:max-h-none">
 				<Board {board} />
 			</div>
-			<div class="w-full max-w-lg lg:max-w-2xl xl:max-w-4xl">
+			<div class="w-full max-w-lg lg:max-w-2xl xl:max-w-4xl flex-shrink-0">
 				<Keyboard {keyClicked} {keysColorMap} />
 			</div>
 		</div>

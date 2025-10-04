@@ -19,7 +19,8 @@
 					lg:h-16 lg:w-16 lg:text-4xl
 					xl:h-18 xl:w-18 xl:text-5xl
 					{board[i][j].backgroundColor !== StateColor.INACTIVE ? board[i][j].backgroundColor : ''}
-					{!theme.darkMode ? board[i][j].textColor : TextColor.WHITE}"
+					{board[i][j].backgroundColor === StateColor.ACTIVE ? (theme.darkMode ? TextColor.WHITE : TextColor.BLACK) :
+					 TextColor.WHITE}"
 					bind:value={board[i][j].value}
 					disabled
 				/>

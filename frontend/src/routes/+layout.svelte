@@ -25,7 +25,7 @@
 <div
 	id="root-layout"
 	class="bg-light-background dark:bg-dark-background notranslate flex h-screen w-full flex-col items-center overflow-hidden font-sans transition-colors duration-500 dark:text-white"
-	style="padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right);"
+	style="padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); min-height: 100vh; min-height: 100dvh;"
 >
 	<div class="toast-container">
 		<SvelteToast options={toastOptions} />
