@@ -287,7 +287,7 @@
 </nav>
 
 <main
-	class="container flex h-full flex-1 flex-col px-2 py-4 sm:px-4 sm:py-8 lg:px-8 lg:py-12 xl:max-w-6xl overflow-hidden"
+	class="container flex min-h-0 flex-1 flex-col px-2 py-4 sm:px-4 sm:py-8 lg:px-8 lg:py-12 xl:max-w-6xl overflow-hidden"
 >
 	{#if isLoading}
 		<div class="flex flex-1 items-center justify-center">
@@ -304,7 +304,7 @@
 		</div>
 	{:else}
 		<div
-			class="flex h-full max-h-full flex-col items-center justify-center gap-2 sm:gap-4 lg:gap-8"
+			class="flex min-h-0 max-h-full flex-col items-center justify-center gap-2 sm:gap-4 lg:gap-8"
 			in:fly={{ y: 20, duration: 300 }}
 		>
 			<div class="flex max-h-[50vh] flex-1 items-center justify-center sm:max-h-[60vh] lg:max-h-none">

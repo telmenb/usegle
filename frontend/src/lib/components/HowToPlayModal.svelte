@@ -144,7 +144,11 @@
 		min-width: 280px;
 		max-width: 90vw;
 		width: 640px;
+		/* Fallback for older browsers */
 		max-height: 90vh;
+		/* Use safer viewport units on mobile */
+		max-height: min(90svh, calc(var(--app-vh, 1vh) * 90));
+		max-height: min(90dvh, calc(var(--app-vh, 1vh) * 90));
 		overflow-y: auto;
 		padding: 0.75rem 0.75rem 1.5rem;
 		display: flex;
