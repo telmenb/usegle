@@ -27,7 +27,7 @@
 	function createCellArray(letters: Array<string>): Array<Cell> {
 		return letters.map((letter) => ({
 			value: letter,
-			backgroundColor: StateColor.INACTIVE,
+			backgroundColor: StateColor.ACTIVE,
 			textColor: TextColor.BLACK
 		}));
 	}
