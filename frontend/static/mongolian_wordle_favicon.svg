@@ -1,0 +1,19 @@
+<svg width="100%" viewBox="0 0 268 268" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- 3x3 grid of tiles. Tile: 72px, gap: 10px. Total: 3*72+2*10=236. Padding: 16px each side. Canvas: 268x268 -->
+
+  <!-- Row 1: gray, gray, gray -->
+  <rect x="16" y="16" width="72" height="72" rx="10" fill="#888780"/>
+  <rect x="98" y="16" width="72" height="72" rx="10" fill="#888780"/>
+  <rect x="180" y="16" width="72" height="72" rx="10" fill="#888780"/>
+
+  <!-- Row 2: amber, green, amber -->
+  <rect x="16" y="98" width="72" height="72" rx="10" fill="#BA7517"/>
+  <rect x="98" y="98" width="72" height="72" rx="10" fill="#1D9E75"/>
+  <rect x="180" y="98" width="72" height="72" rx="10" fill="#BA7517"/>
+
+  <!-- Row 3: green, green, green -->
+  <rect x="16" y="180" width="72" height="72" rx="10" fill="#1D9E75"/>
+  <rect x="98" y="180" width="72" height="72" rx="10" fill="#1D9E75"/>
+  <rect x="180" y="180" width="72" height="72" rx="10" fill="#1D9E75"/>
+</svg>
