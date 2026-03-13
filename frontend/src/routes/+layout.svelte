@@ -2,6 +2,7 @@
 	import '../app.css';
 	import { Modals } from 'svelte-modals';
 	import { SvelteToast } from '@zerodevx/svelte-toast';
+	import { injectAnalytics } from '@vercel/analytics/sveltekit';
 	import { initDarkMode } from '$lib';
 	import { setContext, onMount } from 'svelte';
 	import { setItemInStorage } from '$lib/storageHelper';
@@ -12,6 +13,8 @@
 		darkMode: initDarkMode()
 	});
 	setContext('theme', theme);
+
+	injectAnalytics({ mode: 'auto' });
 
 	onMount(() => {
 		if (theme.darkMode) {
