@@ -2,17 +2,11 @@ import express, { Router, Request, Response } from 'express';
 import { GuessWordRequest } from '../models/GuessWordRequest';
 import * as fs from 'fs';
 import * as path from 'path';
-import { createClient } from 'redis';
-import dotenv from "dotenv";
 import { isWordInDictionary } from '../services/dictionary-service';
+import { getRedisClient } from '../services/redis';
 
 const router: Router = express.Router();
 const wordMap: Map<string, boolean> = readWordList();
-
-dotenv.config();
-const REDIS_PORT: number = process.env.REDIS_PORT as unknown as number || 6379;
-const REDIS_HOST: string = process.env.REDIS_HOST as string || 'localhost';
-const REDIS_PASSWORD: string = process.env.REDIS_PASSWORD as string || '';
 const redisClient = getRedisClient();
 
 // Default values - should be overwritten on init
@@ -94,20 +88,6 @@ function readWordList(): Map<string, boolean> {
   }
 
   return wordMap;
-}
-
-function getRedisClient() {
-  const client = createClient({
-    password: REDIS_PASSWORD,
-    socket: {
-        host: REDIS_HOST,
-        port: REDIS_PORT
-    }
-  });
-  client.on('connect', () => console.log('Redis Client Connected'));
-  client.on('error', err => console.log('Redis Client Error', err));
-  client.connect();
-  return client;
 }
 
 export default router;

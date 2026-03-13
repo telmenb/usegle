@@ -2,6 +2,8 @@ import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import cors, { CorsOptions } from 'cors';
 import gameController from "./routes/game";
+import adminController from "./routes/admin";
+import { requireAdminKey } from "./middleware/auth";
 
 dotenv.config();
 
@@ -36,6 +38,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // Routes
 app.use("/api/game", gameController);
+app.use("/api/admin", requireAdminKey, adminController);
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
