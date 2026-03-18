@@ -18,9 +18,13 @@ export function initBoard(wordLength: number): Array<Array<Cell>> {
     return JSON.parse(savedBoardState);
   }
 
-  const darkModePreference = getItemFromStorage('darkMode');
+  const darkModePreference = getItemFromStorage('darkMode') || 'false';
+  const hasSeenTutorial = getItemFromStorage('hasSeenTutorial');
   clearStorage();
-  setItemInStorage('darkMode', darkModePreference === 'true' ? 'true' : 'false');
+  setItemInStorage('darkMode', darkModePreference);
+  if (hasSeenTutorial) {
+    setItemInStorage('hasSeenTutorial', hasSeenTutorial);
+  }
 
   return new Array<Array<Cell>>(wordLength + 1).fill([]).map(() => {
     return new Array<Cell>(wordLength).fill({
