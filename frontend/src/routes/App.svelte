@@ -56,6 +56,18 @@
 	onMount(() => {
 		currentRow = initCurrentRow();
 		won = initWon();
+
+		const currentDate = new Date().toISOString().slice(0, 10);
+		if (getItemFromStorage(currentDate)) {
+			const savedKeys = getItemFromStorage('keysColorMap');
+			if (savedKeys) {
+				const entries: [string, StateColor][] = JSON.parse(savedKeys);
+				for (const [key, color] of entries) {
+					keysColorMap.set(key, color);
+				}
+			}
+		}
+
 		isLoading = false;
 
 		updateTimeLeft();
@@ -193,6 +205,7 @@
 
 			setItemInStorage(new Date().toISOString().slice(0, 10), JSON.stringify(board));
 			setItemInStorage('currentRow', JSON.stringify(currentRow));
+			setItemInStorage('keysColorMap', JSON.stringify(Array.from(keysColorMap.entries())));
 		} finally {
 			isSubmitting = false;
 		}
