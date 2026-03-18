@@ -5,14 +5,40 @@ import * as path from 'path';
 import { isWordInDictionary } from '../services/dictionary-service';
 import { getRedisClient } from '../services/redis';
 
+const CACHE_REFRESH_INTERVAL = 60_000;
 const router: Router = express.Router();
 const wordMap: Map<string, boolean> = readWordList();
 const redisClient = getRedisClient();
 
-// Default values - should be overwritten on init
 let wordLength: number = 5;
 let cachedDate: string = '';
-let cachedAnswer: string = 'хамаг';
+let cachedAnswer: string = '';
+
+async function ensureTodaysWord(): Promise<boolean> {
+  if (!redisClient.isReady) return false;
+
+  const currentDate = new Date().toISOString().slice(0, 10);
+  if (currentDate === cachedDate) return true;
+
+  const word = await redisClient.get(currentDate);
+  if (!word) {
+    console.error(`No word scheduled in Redis for ${currentDate}`);
+    return false;
+  }
+  cachedDate = currentDate;
+  cachedAnswer = word;
+  wordLength = word.length;
+  return true;
+}
+
+// Warm cache on startup and refresh it every 60 seconds
+(async () => {
+  try { await ensureTodaysWord(); } catch (e) { console.error('Startup cache warm-up failed:', e); }
+})();
+
+setInterval(async () => {
+  try { await ensureTodaysWord(); } catch (e) { console.error('Cache refresh failed:', e); }
+}, CACHE_REFRESH_INTERVAL);
 
 router.get("/init", async (req: Request, res: Response) => {
   if (!redisClient.isReady) {
@@ -20,18 +46,18 @@ router.get("/init", async (req: Request, res: Response) => {
     return;
   }
 
-  const currentDate = new Date().toISOString().slice(0,10);
-  if (currentDate !== cachedDate) {
-    const word = await redisClient.get(currentDate);
-    if (!word) {
-      console.log(`Failed to retrieve word from Redis ${currentDate}`);
-    }
-    cachedDate = word ? currentDate : cachedDate;
-    cachedAnswer = word ?? cachedAnswer;
+  if (!await ensureTodaysWord()) {
+    res.status(503).json({ errorMessage: 'No word scheduled for today' });
+    return;
   }
 
-  wordLength = cachedAnswer.length;
   res.json({ wordLength });
+});
+
+router.get("/health", (req: Request, res: Response) => {
+  const today = new Date().toISOString().slice(0, 10);
+  const healthy = cachedDate === today;
+  res.status(healthy ? 200 : 503).json({ healthy, cachedDate, wordLength });
 });
 
 router.get("/wordBank", (req: Request, res: Response) => {
@@ -43,6 +69,11 @@ router.post("/checkGuess", async (req: Request, res: Response) => {
   const { guess } = req.body as GuessWordRequest;
   if (!guess) {
     res.status(400).json({ errorMessage: "Bad guess property" });
+    return;
+  }
+
+  if (!await ensureTodaysWord()) {
+    res.status(503).json({ errorMessage: 'No word scheduled for today' });
     return;
   }
 

@@ -117,6 +117,12 @@
 		tomorrow.setUTCHours(0, 0, 0, 0);
 
 		const diffMs = tomorrow.getTime() - now.getTime();
+
+		if (diffMs <= 0) {
+			window.location.reload();
+			return;
+		}
+
 		const diffSecs = Math.floor(diffMs / 1000);
 
 		const hours = Math.floor(diffSecs / 3600);
@@ -226,7 +232,7 @@
 		return result;
 	}
 
-	function handleAxiosErrorResponse(response: AxiosResponse<any, any>): void {
+	function handleAxiosErrorResponse(response: AxiosResponse<unknown, unknown>): void {
 		if (response.status === 404) {
 			toast.push('Бөглөсөн үг үгийн санд байхгүй байна');
 		} else {
@@ -332,6 +338,11 @@
 			<div
 				class="h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600 sm:h-16 sm:w-16 lg:h-20 lg:w-20"
 			></div>
+		</div>
+	{:else if data.wordLength === -1}
+		<div class="flex flex-1 flex-col items-center justify-center gap-3 text-center">
+			<p class="text-lg font-semibold text-gray-700 dark:text-gray-200">Уучлаарай, өнөөдрийн үг тохируулагдаагүй байна</p>
+			<p class="text-sm text-gray-500 dark:text-gray-400">Та түр хүлээгээд ахиж шалгана уу? 🤕</p>
 		</div>
 	{:else if gameOver}
 		<div
