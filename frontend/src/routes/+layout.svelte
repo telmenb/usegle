@@ -7,6 +7,27 @@
 	import { setContext, onMount } from 'svelte';
 	import { setItemInStorage } from '$lib/storageHelper';
 
+	const siteUrl = 'https://usegle.com';
+	const title = 'Usegle – Mongolian Wordle';
+	const description =
+		'Usegle бол монгол хэл дээрх Wordle тоглоом. Өдөр бүр шинэ үг тааварла! The Mongolian Wordle game — guess the daily Mongolian word in 6 tries.';
+	const ogImage = `${siteUrl}/mongolian_wordle_favicon.png`;
+
+	const jsonLd = JSON.stringify({
+		'@context': 'https://schema.org',
+		'@type': 'WebApplication',
+		name: 'Usegle – Mongolian Wordle',
+		url: siteUrl,
+		description,
+		applicationCategory: 'GameApplication',
+		operatingSystem: 'Any',
+		inLanguage: 'mn',
+		offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+		publisher: { '@type': 'Organization', name: 'Usegle', url: siteUrl }
+	});
+	// Split the closing tag so Svelte's parser doesn't terminate the <script> block early
+	const jsonLdScript = `<script type="application/ld+json">${jsonLd}<` + `/script>`;
+
 	let { children } = $props();
 	const toastOptions = { duration: 3000 };
 	let theme = $state({
@@ -42,6 +63,36 @@
 		};
 	});
 </script>
+
+<svelte:head>
+	<title>{title}</title>
+	<meta name="description" content={description} />
+	<link rel="canonical" href={siteUrl} />
+
+	<!-- Open Graph -->
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content={siteUrl} />
+	<meta property="og:title" content={title} />
+	<meta property="og:description" content={description} />
+	<meta property="og:image" content={ogImage} />
+	<meta property="og:locale" content="mn_MN" />
+	<meta property="og:locale:alternate" content="en_US" />
+	<meta property="og:site_name" content="Usegle" />
+
+	<!-- Twitter Card -->
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:title" content={title} />
+	<meta name="twitter:description" content={description} />
+	<meta name="twitter:image" content={ogImage} />
+
+	<!-- Extra SEO signals -->
+	<meta name="keywords" content="mongolian wordle, монгол wordle, usegle, монгол үг тааварлах тоглоом, wordle mn" />
+	<meta name="robots" content="index, follow" />
+
+	<!-- JSON-LD structured data (content is our own static constants, not user input) -->
+	<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+	{@html jsonLdScript}
+</svelte:head>
 
 <div
 	id="root-layout"

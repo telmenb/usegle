@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://usegle.com/sitemap.xml
