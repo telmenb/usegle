@@ -1,37 +1,31 @@
-import axios from 'axios';
-import { DictionaryEntry } from '../models/DictionaryEntry';
+import * as fs from 'fs';
+import * as path from 'path';
 
-const DICTIONARY_API_HOST = "https://toli.gov.mn";
+const wordSet = new Set<string>();
 
-const dictionaryCache = new Map<string, boolean>();
-
-export async function isWordInDictionary(word: string): Promise<boolean> {
-  const key = word.toLowerCase();
-  if (dictionaryCache.has(key)) return dictionaryCache.get(key)!;
-
-  const dictionaryEntries = await searchDictionary(word);
-  const found = dictionaryEntries.length > 0 &&
-    !!dictionaryEntries.find((entry: DictionaryEntry) => entry.value.toLowerCase() === key);
-
-  dictionaryCache.set(key, found);
-  return found;
+function loadDictionary(): void {
+  const filePath = path.join(__dirname, '../../data/toli_words.jsonl');
+  const lines = fs.readFileSync(filePath, 'utf8').split('\n');
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    try {
+      const { word } = JSON.parse(line);
+      if (typeof word === 'string' && word.trim().length === 5) {
+        wordSet.add(word.trim().toLowerCase());
+      }
+    } catch {
+      // skip malformed lines
+    }
+  }
+  console.log(`Dictionary loaded: ${wordSet.size} five-letter words`);
 }
 
-async function searchDictionary(word: string): Promise<DictionaryEntry[]> {
-  if (typeof word !== 'string' || word.trim().length < 3) {
-    return [];
-  }
+loadDictionary();
 
-  const response = await axios.get(`${DICTIONARY_API_HOST}/auto`, {
-    params: {
-      term: word
-    }
-  });
+export function isWordInDictionary(word: string): boolean {
+  return wordSet.has(word.trim().toLowerCase());
+}
 
-  try {
-    return response.data as DictionaryEntry[];
-  } catch (error) {
-    console.error('Error parsing dictionary response:', error);
-    return [];
-  }
+export function getFiveLetterWords(): string[] {
+  return Array.from(wordSet);
 }

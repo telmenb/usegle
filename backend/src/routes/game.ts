@@ -1,13 +1,10 @@
 import express, { Router, Request, Response } from 'express';
 import { GuessWordRequest } from '../models/GuessWordRequest';
-import * as fs from 'fs';
-import * as path from 'path';
-import { isWordInDictionary } from '../services/dictionary-service';
+import { isWordInDictionary, getFiveLetterWords } from '../services/dictionary-service';
 import { getRedisClient } from '../services/redis';
 
 const CACHE_REFRESH_INTERVAL = 60_000;
 const router: Router = express.Router();
-const wordMap: Map<string, boolean> = readWordList();
 const redisClient = getRedisClient();
 
 let wordLength: number = 5;
@@ -61,8 +58,7 @@ router.get("/health", (req: Request, res: Response) => {
 });
 
 router.get("/wordBank", (req: Request, res: Response) => {
-  const wordBank: Array<string> = Array.from(wordMap.keys());
-  res.json({ wordBank });
+  res.json({ wordBank: getFiveLetterWords() });
 });
 
 router.post("/checkGuess", async (req: Request, res: Response) => {
@@ -77,14 +73,14 @@ router.post("/checkGuess", async (req: Request, res: Response) => {
     return;
   }
 
-  if (!await isWordInDictionary(guess)) {
+  if (!isWordInDictionary(guess)) {
     res.status(404).json({ errorMessage: "Word not found in dictionary" });
     return;
   }
 
   const result = getGuessResult(guess.toLowerCase(), cachedAnswer);
   res.json({ result });
-})
+});
 
 function getGuessResult(guess: string, answer: string): Array<number> {
   const letterCount: any = {};
@@ -99,26 +95,6 @@ function getGuessResult(guess: string, answer: string): Array<number> {
     result[i] = 0;
   }
   return result;
-}
-
-function readWordList(): Map<string, boolean> {
-  const wordMap = new Map<string, boolean>();
-
-  try {
-    const filePath = path.join(__dirname, '../../data/mongolian_words_5_letters.txt');
-    const content = fs.readFileSync(filePath, 'utf8');
-    const words = content.split('\n');
-
-    for (const word of words) {
-      if (word.trim()) {
-        wordMap.set(word.trim(), true);
-      }
-    }
-  } catch (error) {
-    console.error('Error reading word list:', error);
-  }
-
-  return wordMap;
 }
 
 export default router;
