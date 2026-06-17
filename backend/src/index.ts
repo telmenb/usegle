@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors, { CorsOptions } from 'cors';
 import gameController from "./routes/game";
 import adminController from "./routes/admin";
+import healthController from "./routes/health";
 import { requireAdminKey } from "./middleware/auth";
 
 dotenv.config();
@@ -37,6 +38,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 // Routes
+app.use("/api/health", healthController);
 app.use("/api/game", gameController);
 app.use("/api/admin", requireAdminKey, adminController);
 

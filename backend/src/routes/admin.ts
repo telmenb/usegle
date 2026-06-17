@@ -94,6 +94,69 @@ router.post('/words', async (req: Request, res: Response) => {
   res.json({ scheduled });
 });
 
+// GET /api/admin/words/status?thresholdDays=7&horizonDays=30
+// Returns scheduled word inventory status for alerting/manual checks
+router.get('/words/status', async (req: Request, res: Response) => {
+  const redisClient = getRedisClient();
+
+  if (!redisClient.isReady) {
+    res.status(500).json({ errorMessage: 'Internal database error' });
+    return;
+  }
+
+  const { thresholdDays, horizonDays } = req.query as { thresholdDays?: string; horizonDays?: string };
+  const threshold = thresholdDays ? Number(thresholdDays) : 7;
+  const horizon = horizonDays ? Number(horizonDays) : Math.max(30, threshold + 1);
+
+  if (!Number.isInteger(threshold) || threshold < 1 || threshold > 365) {
+    res.status(400).json({ errorMessage: 'Invalid "thresholdDays", expected integer between 1 and 365' });
+    return;
+  }
+
+  if (!Number.isInteger(horizon) || horizon < threshold || horizon > 365) {
+    res.status(400).json({ errorMessage: 'Invalid "horizonDays", expected integer between thresholdDays and 365' });
+    return;
+  }
+
+  const today = getToday();
+  const dates = Array.from({ length: horizon + 1 }, (_, i) => addDays(today, i));
+  const values = await redisClient.mGet(dates);
+  const scheduled: Record<string, boolean> = {};
+  let consecutiveScheduledDays = 0;
+  let firstMissingDate: string | null = null;
+
+  for (let i = 0; i < dates.length; i++) {
+    const hasWord = values[i] !== null;
+    scheduled[dates[i]] = hasWord;
+
+    if (firstMissingDate === null && !hasWord) {
+      firstMissingDate = dates[i];
+    }
+
+    if (firstMissingDate === null) {
+      consecutiveScheduledDays++;
+    }
+  }
+
+  let futureScheduledDays = 0;
+  for (let i = 1; i < dates.length; i++) {
+    if (!scheduled[dates[i]]) break;
+    futureScheduledDays++;
+  }
+
+  res.json({
+    today,
+    todayScheduled: scheduled[today],
+    consecutiveScheduledDays,
+    futureScheduledDays,
+    firstMissingDate,
+    lowInventory: futureScheduledDays < threshold,
+    thresholdDays: threshold,
+    horizonDays: horizon,
+    scheduled,
+  });
+});
+
 // GET /api/admin/words?from=YYYY-MM-DD&to=YYYY-MM-DD
 // Returns all scheduled words, optionally filtered by date range
 router.get('/words', async (req: Request, res: Response) => {
