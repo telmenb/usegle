@@ -1,5 +1,6 @@
 import express, { Router, Request, Response } from 'express';
 import { getRedisClient } from '../services/redis';
+import { autofillWords, normalizeAutofillOptions } from '../services/word-scheduler-service';
 
 const router: Router = express.Router();
 
@@ -92,6 +93,27 @@ router.post('/words', async (req: Request, res: Response) => {
   await pipeline.exec();
 
   res.json({ scheduled });
+});
+
+// POST /api/admin/words/autofill
+// Body: { targetFutureDays?: number, lookbackDays?: number, minQualityScore?: number, dryRun?: boolean }
+// Fills missing future date keys with high-quality words from data/toli_words.jsonl without overwriting existing schedules
+router.post('/words/autofill', async (req: Request, res: Response) => {
+  const redisClient = getRedisClient();
+
+  if (!redisClient.isReady) {
+    res.status(500).json({ errorMessage: 'Internal database error' });
+    return;
+  }
+
+  try {
+    const options = normalizeAutofillOptions(req.body || {});
+    const result = await autofillWords(redisClient, options);
+    res.json(result);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to autofill words';
+    res.status(400).json({ errorMessage: message });
+  }
 });
 
 // GET /api/admin/words/status?thresholdDays=7&horizonDays=30
