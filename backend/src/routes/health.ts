@@ -1,3 +1,4 @@
+import { addDays, getToday, coverage } from '../services/game-date';
 import express, { Router, Request, Response } from "express";
 import { getRedisClient } from "../services/redis";
 
@@ -9,16 +10,6 @@ router.use((_req, res, next) => {
   res.setHeader("Cache-Control", "no-store");
   next();
 });
-
-function addDays(dateStr: string, days: number): string {
-  const d = new Date(dateStr + "T00:00:00Z");
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().slice(0, 10);
-}
-
-function getToday(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 async function getScheduledWords(
   startDate: string,
@@ -78,11 +69,7 @@ router.get("/game", async (req: Request, res: Response) => {
     const todayWord = scheduled[today];
     const tomorrowWord = scheduled[tomorrow];
 
-    let scheduledDaysAhead = 0;
-    for (let i = 1; i <= WORD_INVENTORY_WARNING_DAYS; i++) {
-      if (!scheduled[addDays(today, i)]) break;
-      scheduledDaysAhead++;
-    }
+    const scheduledDaysAhead = coverage(today, scheduled, WORD_INVENTORY_WARNING_DAYS).futureScheduledDays;
 
     if (!todayWord) warnings.push("No word scheduled for today");
     if (!tomorrowWord) warnings.push("No word scheduled for tomorrow");

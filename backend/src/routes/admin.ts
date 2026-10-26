@@ -1,260 +1,176 @@
-import express, { Router, Request, Response } from 'express';
-import { getRedisClient } from '../services/redis';
-import { autofillWords, normalizeAutofillOptions } from '../services/word-scheduler-service';
+import express, { Request, Response, NextFunction } from 'express';
+import { EditorError, requireValue } from '../services/editor/store';
+import {
+  candidates,
+  decide,
+  getQueue,
+  undoDecision,
+} from '../services/editor/review';
+import {
+  previewSchedule,
+  saveSchedule,
+  scheduleRange,
+  summary,
+} from '../services/editor/schedule';
+import {
+  checkSession,
+  cookieToken,
+  login,
+  logout,
+} from '../services/editor/session';
 
-const router: Router = express.Router();
+const router = express.Router();
+type Handler = (req: Request, res: Response) => Promise<unknown>;
+const handle =
+  (handler: Handler) => (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(handler(req, res)).catch(next);
+  };
+const pageNumber = (input: unknown, fallback: number, max: number): number => {
+  const value = input === undefined ? fallback : Number(input);
+  requireValue(
+    Number.isInteger(value) && value >= 0 && value <= max,
+    'Invalid page range.',
+  );
+  return value;
+};
+const text = (input: unknown, max: number): string => {
+  requireValue(
+    input === undefined || (typeof input === 'string' && input.length <= max),
+    'Invalid search.',
+  );
+  return (input as string) || '';
+};
 
-function getToday(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-// Adds `days` days to a YYYY-MM-DD string
-function addDays(dateStr: string, days: number): string {
-  const d = new Date(dateStr + 'T00:00:00Z');
-  d.setUTCDate(d.getUTCDate() + days);
-  return d.toISOString().slice(0, 10);
-}
-
-// Scans Redis for all date-keyed words and returns the latest date string, or null
-async function getLatestScheduledDate(): Promise<string | null> {
-  const redisClient = getRedisClient();
-  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-  let cursor = 0;
-  let latestDate: string | null = null;
-
-  do {
-    const reply = await redisClient.scan(cursor, { MATCH: '????-??-??', COUNT: 100 });
-    cursor = reply.cursor;
-    for (const key of reply.keys) {
-      if (datePattern.test(key)) {
-        if (!latestDate || key > latestDate) {
-          latestDate = key;
-        }
-      }
-    }
-  } while (cursor !== 0);
-
-  return latestDate;
-}
-
-// POST /api/admin/words
-// Body: { words: string[], startDate?: string (YYYY-MM-DD) }
-// Assigns each word to consecutive days starting from startDate (inclusive),
-// or after the latest scheduled date if startDate is omitted
-router.post('/words', async (req: Request, res: Response) => {
-  const redisClient = getRedisClient();
-
-  if (!redisClient.isReady) {
-    res.status(500).json({ errorMessage: 'Internal database error' });
+router.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  if (
+    !['GET', 'HEAD'].includes(req.method) &&
+    (!process.env.EDITOR_ORIGIN ||
+      req.headers.origin !== process.env.EDITOR_ORIGIN)
+  ) {
+    res.status(403).json({ errorMessage: 'Untrusted editor origin.' });
     return;
   }
-
-  const { words, startDate } = req.body as { words: unknown; startDate?: unknown };
-
-  if (!Array.isArray(words) || words.length === 0) {
-    res.status(400).json({ errorMessage: 'Body must contain a non-empty "words" array' });
-    return;
-  }
-
-  const invalidWords = words.filter((w) => typeof w !== 'string' || w.trim() === '');
-  if (invalidWords.length > 0) {
-    res.status(400).json({ errorMessage: 'All words must be non-empty strings' });
-    return;
-  }
-
-  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-  if (startDate !== undefined && (typeof startDate !== 'string' || !datePattern.test(startDate))) {
-    res.status(400).json({ errorMessage: 'Invalid "startDate" format, expected YYYY-MM-DD' });
-    return;
-  }
-
-  const trimmedWords = (words as string[]).map((w) => w.trim().toLowerCase());
-
-  let startFrom: string;
-  if (startDate) {
-    startFrom = startDate;
-  } else {
-    const latestDate = await getLatestScheduledDate();
-    startFrom = addDays(getToday(), 1);
-    if (latestDate && latestDate > getToday()) {
-      startFrom = addDays(latestDate, 1);
-    }
-  }
-
-  const scheduled: Record<string, string> = {};
-  const pipeline = redisClient.multi();
-
-  for (let i = 0; i < trimmedWords.length; i++) {
-    const date = addDays(startFrom, i);
-    scheduled[date] = trimmedWords[i];
-    pipeline.set(date, trimmedWords[i]);
-  }
-
-  await pipeline.exec();
-
-  res.json({ scheduled });
+  next();
 });
-
-// POST /api/admin/words/autofill
-// Body: { targetFutureDays?: number, lookbackDays?: number, minQualityScore?: number, dryRun?: boolean }
-// Fills missing future date keys with high-quality words from data/toli_words.jsonl without overwriting existing schedules
-router.post('/words/autofill', async (req: Request, res: Response) => {
-  const redisClient = getRedisClient();
-
-  if (!redisClient.isReady) {
-    res.status(500).json({ errorMessage: 'Internal database error' });
-    return;
-  }
-
-  try {
-    const options = normalizeAutofillOptions(req.body || {});
-    const result = await autofillWords(redisClient, options);
-    res.json(result);
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to autofill words';
-    res.status(400).json({ errorMessage: message });
-  }
+router.post(
+  '/session/login',
+  handle(async (req, res) => {
+    // Only accept the server bridge's IP after its deployment proxy has been verified.
+    const ip =
+      process.env.EDITOR_TRUST_CLIENT_IP === 'true'
+        ? text(req.headers['x-editor-client-ip'], 128)
+        : 'owner';
+    res.json(await login(req.body.password, ip));
+  }),
+);
+router.use((req, _res, next) => {
+  checkSession(cookieToken(req.headers.cookie)).then(() => next(), next);
 });
-
-// GET /api/admin/words/status?thresholdDays=7&horizonDays=30
-// Returns scheduled word inventory status for alerting/manual checks
-router.get('/words/status', async (req: Request, res: Response) => {
-  const redisClient = getRedisClient();
-
-  if (!redisClient.isReady) {
-    res.status(500).json({ errorMessage: 'Internal database error' });
-    return;
-  }
-
-  const { thresholdDays, horizonDays } = req.query as { thresholdDays?: string; horizonDays?: string };
-  const threshold = thresholdDays ? Number(thresholdDays) : 7;
-  const horizon = horizonDays ? Number(horizonDays) : Math.max(30, threshold + 1);
-
-  if (!Number.isInteger(threshold) || threshold < 1 || threshold > 365) {
-    res.status(400).json({ errorMessage: 'Invalid "thresholdDays", expected integer between 1 and 365' });
-    return;
-  }
-
-  if (!Number.isInteger(horizon) || horizon < threshold || horizon > 365) {
-    res.status(400).json({ errorMessage: 'Invalid "horizonDays", expected integer between thresholdDays and 365' });
-    return;
-  }
-
-  const today = getToday();
-  const dates = Array.from({ length: horizon + 1 }, (_, i) => addDays(today, i));
-  const values = await redisClient.mGet(dates);
-  const scheduled: Record<string, boolean> = {};
-  let consecutiveScheduledDays = 0;
-  let firstMissingDate: string | null = null;
-
-  for (let i = 0; i < dates.length; i++) {
-    const hasWord = values[i] !== null;
-    scheduled[dates[i]] = hasWord;
-
-    if (firstMissingDate === null && !hasWord) {
-      firstMissingDate = dates[i];
+router.get(
+  '/session',
+  handle(async (_req, res) => {
+    res.json({ authenticated: true });
+  }),
+);
+router.post(
+  '/session/logout',
+  handle(async (req, res) => {
+    await logout(cookieToken(req.headers.cookie));
+    res.json({ ok: true });
+  }),
+);
+router.get(
+  '/summary',
+  handle(async (_req, res) => {
+    res.json(await summary());
+  }),
+);
+router.get(
+  '/candidates',
+  handle(async (req, res) => {
+    const seed = text(req.query.seed, 64);
+    requireValue(seed.length > 0, 'A review session seed is required.');
+    res.json(
+      await candidates(
+        seed,
+        pageNumber(req.query.offset, 0, 100000),
+        text(req.query.search, 80),
+      ),
+    );
+  }),
+);
+router.get(
+  '/queue',
+  handle(async (req, res) => {
+    res.json(
+      await getQueue(
+        text(req.query.search, 80),
+        pageNumber(req.query.offset, 0, 100000),
+      ),
+    );
+  }),
+);
+router.post(
+  '/decisions',
+  handle(async (req, res) => {
+    res.json(await decide(req.body.word, req.body.decision, req.body.revision));
+  }),
+);
+router.post(
+  '/queue/top',
+  handle(async (req, res) => {
+    res.json(await decide(req.body.word, 'approved', req.body.revision, true));
+  }),
+);
+router.post(
+  '/undo',
+  handle(async (req, res) => {
+    res.json(await undoDecision(req.body.token));
+  }),
+);
+router.get(
+  '/schedule',
+  handle(async (req, res) => {
+    res.json(
+      await scheduleRange(req.query.from, pageNumber(req.query.days, 30, 30)),
+    );
+  }),
+);
+router.post(
+  '/schedule/preview',
+  handle(async (req, res) => {
+    res.json(await previewSchedule(req.body.date));
+  }),
+);
+router.post(
+  '/schedule/save',
+  handle(async (req, res) => {
+    try {
+      res.json(await saveSchedule(req.body));
+    } catch (err) {
+      if (err instanceof EditorError && err.status === 409) {
+        const date = req.body.replacement
+          ? req.body.assignments?.[0]?.date
+          : undefined;
+        res
+          .status(409)
+          .json({
+            errorMessage: err.message,
+            preview: await previewSchedule(date),
+          });
+      } else throw err;
     }
-
-    if (firstMissingDate === null) {
-      consecutiveScheduledDays++;
-    }
-  }
-
-  let futureScheduledDays = 0;
-  for (let i = 1; i < dates.length; i++) {
-    if (!scheduled[dates[i]]) break;
-    futureScheduledDays++;
-  }
-
-  res.json({
-    today,
-    todayScheduled: scheduled[today],
-    consecutiveScheduledDays,
-    futureScheduledDays,
-    firstMissingDate,
-    lowInventory: futureScheduledDays < threshold,
-    thresholdDays: threshold,
-    horizonDays: horizon,
-    scheduled,
-  });
-});
-
-// GET /api/admin/words?from=YYYY-MM-DD&to=YYYY-MM-DD
-// Returns all scheduled words, optionally filtered by date range
-router.get('/words', async (req: Request, res: Response) => {
-  const redisClient = getRedisClient();
-
-  if (!redisClient.isReady) {
-    res.status(500).json({ errorMessage: 'Internal database error' });
-    return;
-  }
-
-  const { from, to } = req.query as { from?: string; to?: string };
-  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-
-  if (from && !datePattern.test(from)) {
-    res.status(400).json({ errorMessage: 'Invalid "from" date format, expected YYYY-MM-DD' });
-    return;
-  }
-  if (to && !datePattern.test(to)) {
-    res.status(400).json({ errorMessage: 'Invalid "to" date format, expected YYYY-MM-DD' });
-    return;
-  }
-
-  let cursor = 0;
-  const dateKeys: string[] = [];
-
-  do {
-    const reply = await redisClient.scan(cursor, { MATCH: '????-??-??', COUNT: 100 });
-    cursor = reply.cursor;
-    for (const key of reply.keys) {
-      if (datePattern.test(key)) {
-        if (from && key < from) continue;
-        if (to && key > to) continue;
-        dateKeys.push(key);
-      }
-    }
-  } while (cursor !== 0);
-
-  dateKeys.sort();
-
-  const scheduled: Record<string, string> = {};
-  if (dateKeys.length > 0) {
-    const values = await redisClient.mGet(dateKeys);
-    for (let i = 0; i < dateKeys.length; i++) {
-      if (values[i] !== null) {
-        scheduled[dateKeys[i]] = values[i] as string;
-      }
-    }
-  }
-
-  res.json({ scheduled });
-});
-
-// DELETE /api/admin/words/:date
-router.delete('/words/:date', async (req: Request, res: Response) => {
-  const redisClient = getRedisClient();
-
-  if (!redisClient.isReady) {
-    res.status(500).json({ errorMessage: 'Internal database error' });
-    return;
-  }
-
-  const { date } = req.params;
-  const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-
-  if (!datePattern.test(date)) {
-    res.status(400).json({ errorMessage: 'Invalid date format, expected YYYY-MM-DD' });
-    return;
-  }
-
-  const deleted = await redisClient.del(date);
-  if (deleted === 0) {
-    res.status(404).json({ errorMessage: `No word scheduled for ${date}` });
-    return;
-  }
-
-  res.json({ deleted: date });
-});
-
+  }),
+);
+router.use(
+  (err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+    const known = err instanceof EditorError;
+    res
+      .status(known ? err.status : 503)
+      .json({
+        errorMessage: known ? err.message : 'Editor unavailable. Please retry.',
+      });
+  },
+);
 export default router;

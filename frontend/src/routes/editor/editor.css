@@ -1,0 +1,247 @@
+.editor {
+	--ink: #172e2b;
+	--paper: #fbfaf5;
+	--line: #d8ded6;
+	--accent: #236b51;
+	color: var(--ink);
+	background: var(--paper);
+	width: 100%;
+	min-height: 100dvh;
+	padding: 0 max(16px, env(safe-area-inset-right)) calc(100px + env(safe-area-inset-bottom))
+		max(16px, env(safe-area-inset-left));
+	font-size: 16px;
+	line-height: 1.55;
+}
+.editor > header,
+.editor > main,
+.editor > aside,
+.editor > footer {
+	max-width: 680px;
+	margin-inline: auto;
+}
+.editor header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding-block: 20px;
+}
+.editor .brand {
+	text-decoration: none;
+	font-size: 24px;
+	font-weight: 800;
+}
+.editor .brand span {
+	display: block;
+	font-weight: 400;
+	font-size: 13px;
+}
+.editor h1 {
+	font-size: 28px;
+	line-height: 1.2;
+	font-weight: 750;
+	margin: 24px 0 10px;
+}
+.editor h2 {
+	font-size: 21px;
+	font-weight: 700;
+}
+.editor p {
+	margin-block: 8px;
+}
+.editor a {
+	color: var(--accent);
+	text-decoration: underline;
+	text-underline-offset: 3px;
+}
+.editor button,
+.editor .button,
+.editor input,
+.editor summary {
+	min-height: 44px;
+}
+.editor button,
+.editor .button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--line);
+	border-radius: 10px;
+	padding: 10px 16px;
+	font-weight: 650;
+	background: white;
+	color: var(--ink);
+	text-decoration: none;
+	cursor: pointer;
+}
+.editor button:disabled {
+	opacity: 0.55;
+	cursor: wait;
+}
+.editor .primary {
+	background: var(--accent);
+	color: white;
+	border-color: var(--accent);
+}
+.editor .quiet {
+	background: transparent;
+}
+.editor input {
+	width: 100%;
+	min-width: 0;
+	border: 1px solid #9daea3;
+	border-radius: 8px;
+	padding: 8px 10px;
+	background: white;
+	color: var(--ink);
+}
+.editor :is(button, a, input, summary):focus-visible {
+	outline: 3px solid #b15a12;
+	outline-offset: 3px;
+}
+.editor label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 5px;
+}
+.editor .card {
+	border: 1px solid var(--line);
+	border-radius: 16px;
+	background: white;
+	padding: 20px;
+	margin-block: 20px;
+	overflow-wrap: anywhere;
+}
+.editor .word {
+	font-size: 42px;
+	letter-spacing: 0.06em;
+	margin-block: 16px;
+}
+.editor .meanings {
+	padding-left: 20px;
+	margin-block: 16px 24px;
+}
+.editor .meanings li {
+	margin-block: 12px;
+}
+.editor .meanings span,
+.editor .eyebrow {
+	color: #53675d;
+}
+.editor .actions,
+.editor .inline {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+.editor .actions > * {
+	flex: 1;
+}
+.editor .inline {
+	flex-wrap: nowrap;
+}
+.editor .search {
+	margin-block: 24px;
+}
+.editor .coverage,
+.editor .notice {
+	background: #e8f1e8;
+	border-radius: 12px;
+	padding: 14px;
+	margin-block: 14px;
+}
+.editor .warning {
+	background: #fff0cf;
+	color: #64410c;
+	padding: 12px;
+	border-radius: 10px;
+}
+.editor .error {
+	background: #ffebe7;
+	color: #8a231b;
+	padding: 12px;
+	border-radius: 10px;
+}
+.editor summary {
+	cursor: pointer;
+	padding-block: 9px;
+	font-weight: 650;
+}
+.editor .queue-item > details > summary {
+	font-size: 24px;
+}
+.editor .queue-item .menu > summary {
+	font-size: 14px;
+}
+.editor nav {
+	position: fixed;
+	z-index: 10;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	justify-content: center;
+	gap: 4px;
+	background: #fbfaf5f5;
+	border-top: 1px solid var(--line);
+	padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+}
+.editor nav a {
+	flex: 1;
+	max-width: 220px;
+	text-align: center;
+	padding: 12px;
+	border-radius: 10px;
+	text-decoration: none;
+	font-weight: 700;
+}
+.editor nav a[aria-current] {
+	background: var(--accent);
+	color: white;
+}
+.editor .schedule-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding-block: 12px;
+	border-bottom: 1px solid var(--line);
+}
+.editor .schedule-row input {
+	max-width: 140px;
+	font-size: 20px;
+}
+.editor .schedule-row small {
+	display: block;
+	font-weight: 400;
+}
+.editor .date-list {
+	margin-block: 20px;
+}
+.editor .preview {
+	border: 2px solid var(--accent);
+}
+.editor .preview form {
+	margin-block: 14px;
+}
+.editor footer {
+	font-size: 13px;
+	color: #53675d;
+	margin-top: 32px;
+}
+.editor .login {
+	max-width: 440px;
+	margin: 15vh auto 0;
+}
+.editor .login button {
+	width: 100%;
+	margin-top: 20px;
+}
+@media (max-width: 360px) {
+	.editor .card {
+		padding: 14px;
+	}
+	.editor .schedule-row input {
+		max-width: 115px;
+	}
+}
