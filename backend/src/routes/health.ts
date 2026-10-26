@@ -3,6 +3,12 @@ import { getRedisClient } from "../services/redis";
 
 const router: Router = express.Router();
 const WORD_INVENTORY_WARNING_DAYS = 7;
+const REDIS_HEALTH_TIMEOUT_MS = 3_000;
+
+router.use((_req, res, next) => {
+  res.setHeader("Cache-Control", "no-store");
+  next();
+});
 
 function addDays(dateStr: string, days: number): string {
   const d = new Date(dateStr + "T00:00:00Z");
@@ -58,11 +64,17 @@ router.get("/game", async (req: Request, res: Response) => {
   }
 
   try {
-    await redisClient.ping();
-    const scheduled = await getScheduledWords(
-      today,
-      WORD_INVENTORY_WARNING_DAYS + 1,
-    );
+    // Bound the probe even if Redis is connected but stops responding.
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const scheduled = await Promise.race([
+      getScheduledWords(today, WORD_INVENTORY_WARNING_DAYS + 1),
+      new Promise<never>((_resolve, reject) => {
+        timeout = setTimeout(
+          () => reject(new Error("Redis health check timed out")),
+          REDIS_HEALTH_TIMEOUT_MS,
+        );
+      }),
+    ]).finally(() => clearTimeout(timeout));
     const todayWord = scheduled[today];
     const tomorrowWord = scheduled[tomorrow];
 
@@ -72,12 +84,13 @@ router.get("/game", async (req: Request, res: Response) => {
       scheduledDaysAhead++;
     }
 
+    if (!todayWord) warnings.push("No word scheduled for today");
     if (!tomorrowWord) warnings.push("No word scheduled for tomorrow");
     if (scheduledDaysAhead < WORD_INVENTORY_WARNING_DAYS) {
       warnings.push(`Only ${scheduledDaysAhead} future day(s) scheduled`);
     }
 
-    const ok = Boolean(todayWord);
+    const ok = Boolean(todayWord && tomorrowWord);
     res.status(ok ? 200 : 503).json({
       ok,
       redis: { ready: true },
