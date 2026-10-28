@@ -1,21 +1,19 @@
 import { createClient, RedisClientType } from 'redis';
 import dotenv from 'dotenv';
 
-dotenv.config();
-
-const REDIS_PORT: number = process.env.REDIS_PORT as unknown as number || 6379;
-const REDIS_HOST: string = process.env.REDIS_HOST as string || 'localhost';
-const REDIS_PASSWORD: string = process.env.REDIS_PASSWORD as string || '';
+// Tests supply an isolated connection explicitly; never load application secrets.
+if (process.env.NODE_ENV !== 'test') dotenv.config();
 
 let client: RedisClientType;
 
 export function getRedisClient(): RedisClientType {
   if (!client) {
     client = createClient({
-      password: REDIS_PASSWORD,
+      username: process.env.REDIS_USER || undefined,
+      password: process.env.REDIS_PASSWORD || undefined,
       socket: {
-        host: REDIS_HOST,
-        port: REDIS_PORT,
+        host: process.env.REDIS_HOST || 'localhost',
+        port: Number(process.env.REDIS_PORT || 6379),
       },
     }) as RedisClientType;
     client.on('connect', () => console.log('Redis Client Connected'));
