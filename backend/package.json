@@ -6,7 +6,7 @@
     "build": "npx tsc",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
-    "schedule-words": "ts-node src/scripts/schedule-words.ts"
+    "test": "npm run build && NODE_ENV=test node --test dist/tests/*.test.js"
   },
   "engines": {
     "node": ">=18.0.0",

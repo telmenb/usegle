@@ -1,3 +1,4 @@
+import { getToday } from '../services/game-date';
 import express, { Router, Request, Response } from 'express';
 import { GuessWordRequest } from '../models/GuessWordRequest';
 import { isWordInDictionary, getFiveLetterWords } from '../services/dictionary-service';
@@ -14,7 +15,7 @@ let cachedAnswer: string = '';
 async function ensureTodaysWord(): Promise<boolean> {
   if (!redisClient.isReady) return false;
 
-  const currentDate = new Date().toISOString().slice(0, 10);
+  const currentDate = getToday();
   if (currentDate === cachedDate) return true;
 
   const word = await redisClient.get(currentDate);
@@ -52,7 +53,7 @@ router.get("/init", async (req: Request, res: Response) => {
 });
 
 router.get("/health", (req: Request, res: Response) => {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getToday();
   const healthy = cachedDate === today;
   res.status(healthy ? 200 : 503).json({ healthy, cachedDate, wordLength });
 });

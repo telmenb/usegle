@@ -35,7 +35,7 @@
 	});
 	setContext('theme', theme);
 
-	injectAnalytics({ mode: 'auto' });
+	injectAnalytics({ mode: 'auto', beforeSend: (event) => new URL(event.url).pathname.startsWith('/editor') ? null : event });
 
 	onMount(() => {
 		if (theme.darkMode) {
