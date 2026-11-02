@@ -72,7 +72,7 @@
 			)
 			.join('\n');
 
-		return `Usegle ${date} ${rowCount}/${board.length}\n\n${emojiRows}`;
+		return `usegle.com ${date} ${rowCount}/${board.length}\n\n${emojiRows}`;
 	}
 
 	async function shareResults() {
