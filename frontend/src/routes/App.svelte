@@ -11,7 +11,7 @@
 	import EndGame from '$lib/components/EndGame.svelte';
 	import { setItemInStorage, getItemFromStorage } from '$lib/storageHelper';
 	import { PUBLIC_USEGLE_API_HOST } from '$env/static/public';
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount, onDestroy, untrack } from 'svelte';
 	import {
 		getThemeContext,
 		initBoard,
@@ -110,6 +110,16 @@
 			}
 		}
 	});
+
+	$effect(() => {
+		if (!isLoading && gameOver) {
+			untrack(openResults);
+		}
+	});
+
+	function openResults() {
+		modals.open(EndGame, { board, won });
+	}
 
 	function toggleDarkMode() {
 		theme.darkMode = !theme.darkMode;
@@ -344,7 +354,7 @@
 </nav>
 
 <main
-	class="container flex min-h-0 flex-1 flex-col px-2 py-4 sm:px-4 sm:py-8 lg:px-8 lg:py-12 xl:max-w-6xl overflow-hidden"
+	class="container flex min-h-0 flex-1 flex-col overflow-hidden px-2 py-4 sm:px-4 sm:py-8 lg:px-8 lg:py-12 xl:max-w-6xl"
 >
 	{#if isLoading}
 		<div class="flex flex-1 items-center justify-center">
@@ -354,19 +364,14 @@
 		</div>
 	{:else if data.wordLength === -1}
 		<div class="flex flex-1 flex-col items-center justify-center gap-3 text-center">
-			<p class="text-lg font-semibold text-gray-700 dark:text-gray-200">Уучлаарай, өнөөдрийн үг тохируулагдаагүй байна</p>
+			<p class="text-lg font-semibold text-gray-700 dark:text-gray-200">
+				Уучлаарай, өнөөдрийн үг тохируулагдаагүй байна
+			</p>
 			<p class="text-sm text-gray-500 dark:text-gray-400">Та түр хүлээгээд ахиж шалгана уу? 🤕</p>
-		</div>
-	{:else if gameOver}
-		<div
-			class="flex flex-1 flex-col items-center justify-center"
-			in:fly={{ y: 200, duration: 1000 }}
-		>
-			<EndGame {board} {won} />
 		</div>
 	{:else}
 		<div
-			class="flex min-h-0 flex-1 max-h-full flex-col items-center justify-center gap-2 sm:gap-4 lg:gap-8"
+			class="flex max-h-full min-h-0 flex-1 flex-col items-center justify-center gap-2 sm:gap-4 lg:gap-8"
 			in:fly={{ y: 20, duration: 300 }}
 		>
 			<div
@@ -375,9 +380,7 @@
 			>
 				<Board {board} />
 				{#if showSubmittingSpinner}
-					<div
-						class="pointer-events-none absolute inset-0 flex items-center justify-center"
-					>
+					<div class="pointer-events-none absolute inset-0 flex items-center justify-center">
 						<div
 							class="flex flex-col items-center gap-2 rounded-md bg-white/70 px-4 py-3 text-sm font-medium text-gray-800 shadow-md dark:bg-gray-900/70 dark:text-gray-100"
 							role="status"
@@ -390,8 +393,17 @@
 					</div>
 				{/if}
 			</div>
-			<div class="w-full max-w-lg lg:max-w-2xl xl:max-w-4xl flex-shrink-0">
-				<Keyboard {keyClicked} {keysColorMap} isDisabled={isSubmitting} />
+			<div class="w-full max-w-lg flex-shrink-0 lg:max-w-2xl xl:max-w-4xl">
+				{#if gameOver}
+					<button
+						onclick={openResults}
+						class="mx-auto block rounded-lg bg-green-500 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-green-600 active:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
+					>
+						Үр дүн харах
+					</button>
+				{:else}
+					<Keyboard {keyClicked} {keysColorMap} isDisabled={isSubmitting} />
+				{/if}
 			</div>
 		</div>
 	{/if}
