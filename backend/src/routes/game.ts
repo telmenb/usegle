@@ -1,7 +1,7 @@
 import { getToday } from '../services/game-date';
 import express, { Router, Request, Response } from 'express';
 import { GuessWordRequest } from '../models/GuessWordRequest';
-import { isWordInDictionary, getFiveLetterWords } from '../services/dictionary-service';
+import { isWordInDictionary, getFiveLetterWords, getDictionaryWord, normalizeWord } from '../services/dictionary-service';
 import { getRedisClient } from '../services/redis';
 
 const CACHE_REFRESH_INTERVAL = 60_000;
@@ -50,6 +50,16 @@ router.get("/init", async (req: Request, res: Response) => {
   }
 
   res.json({ wordLength });
+});
+
+router.get("/results", async (req: Request, res: Response) => {
+  if (!await ensureTodaysWord()) {
+    res.status(503).json({ errorMessage: 'No word scheduled for today' });
+    return;
+  }
+
+  const entry = getDictionaryWord(normalizeWord(cachedAnswer));
+  res.json({ word: cachedAnswer, meanings: entry?.meanings ?? [] });
 });
 
 router.get("/health", (req: Request, res: Response) => {
