@@ -397,9 +397,22 @@
 				{#if gameOver}
 					<button
 						onclick={openResults}
-						class="mx-auto block rounded-lg bg-green-500 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-green-600 active:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
+						class="mx-auto flex min-h-12 touch-manipulation items-center justify-center gap-3 rounded-full bg-green-500 px-6 py-3 text-base font-semibold text-white shadow-sm ring-1 ring-inset ring-black/5 transition-colors hover:bg-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-4 active:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 dark:focus-visible:ring-offset-dark-background dark:active:bg-green-800"
 					>
 						Үр дүн харах
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							class="h-5 w-5"
+							aria-hidden="true"
+						>
+							<path d="M5 12h14m-6-6 6 6-6 6" />
+						</svg>
 					</button>
 				{:else}
 					<Keyboard {keyClicked} {keysColorMap} isDisabled={isSubmitting} />

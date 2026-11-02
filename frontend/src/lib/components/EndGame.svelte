@@ -75,18 +75,38 @@
 		return `Usegle ${date} ${rowCount}/${board.length}\n\n${emojiRows}`;
 	}
 
-	async function copyToClipboard() {
+	async function shareResults() {
+		const text = buildShareText();
+		if (navigator.share && window.matchMedia('(pointer: coarse)').matches) {
+			try {
+				await navigator.share({ text });
+				return;
+			} catch (error) {
+				if (error instanceof Error && error.name === 'AbortError') return;
+			}
+		}
+
 		try {
-			await navigator.clipboard.writeText(buildShareText());
+			await copyToClipboard(text);
+			toast.push('Үр дүн хуулагдлаа');
+		} catch {
+			toast.push('Үр дүнг хуулж чадсангүй. Дахин оролдоно уу.');
+		}
+	}
+
+	async function copyToClipboard(text: string) {
+		try {
+			await navigator.clipboard.writeText(text);
 		} catch {
 			const el = document.createElement('textarea');
-			el.value = buildShareText();
+			el.value = text;
 			document.body.appendChild(el);
 			el.select();
-			document.execCommand('copy');
-			document.body.removeChild(el);
-		} finally {
-			toast.push('Үр дүн хуулагдлаа');
+			try {
+				if (!document.execCommand('copy')) throw new Error('Copy failed');
+			} finally {
+				el.remove();
+			}
 		}
 	}
 </script>
@@ -143,10 +163,26 @@
 				</div>
 
 				<button
-					onclick={copyToClipboard}
-					class="mt-6 flex items-center gap-2 rounded-lg bg-green-500 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-green-600 active:bg-green-700 sm:mt-10 dark:bg-green-600 dark:hover:bg-green-700"
+					onclick={shareResults}
+					aria-label="Үр дүнг хуваалцах"
+					title="Үр дүнг хуваалцах"
+					class="mt-6 flex h-14 w-14 touch-manipulation items-center justify-center rounded-full bg-green-500 text-white shadow-sm ring-1 ring-inset ring-black/5 transition-colors hover:bg-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-4 active:bg-green-700 sm:mt-10 dark:bg-green-600 dark:hover:bg-green-700 dark:focus-visible:ring-offset-gray-800 dark:active:bg-green-800"
 				>
-					Хуулах
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="1.75"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						class="h-6 w-6"
+						aria-hidden="true"
+					>
+						<path
+							d="M12 15V3m-4 4 4-4 4 4M8 11H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-2"
+						/>
+					</svg>
 				</button>
 			</div>
 		</div>
